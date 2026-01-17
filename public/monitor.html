@@ -12,10 +12,10 @@
         
         <div class="top-bar">
             <div class="monitor-logo brand-logo">AEROS</div>
-            <div class="patient-info">ADULTE - STANDARD</div>
+            <div class="patient-info">ADULTE</div>
             <div class="top-right">
                 <div id="clock">--:--</div>
-                <button id="btn-fs" class="fs-btn" title="Plein écran">⛶</button>
+                <button id="btn-fs" class="fs-btn" style="margin-left:10px;">⛶</button>
             </div>
         </div>
 
@@ -49,33 +49,37 @@
                     <span class="label-text">PNI</span>
                     <span class="label-unit">mmHg</span>
                 </div>
-                <div class="value-zone">
-                    <span id="sys-disp" class="value value-blur">--</span>
-                    <span class="sep">/</span>
-                    <span id="dia-disp" class="value value-blur">--</span>
-                </div>
-                <div class="nibp-sub">
-                    PAM: <span id="map-disp" class="value-blur">--</span>
+                <div class="nibp-group">
+                    <div class="nibp-main-line">
+                        <span id="sys-disp" class="value value-blur">--</span>
+                        <span class="sep">/</span>
+                        <span id="dia-disp" class="value value-blur">--</span>
+                    </div>
+                    <div class="nibp-sub">
+                        PAM (<span id="map-disp" class="value-blur">--</span>)
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="bottom-controls-container">
-            <div class="status-bar">
-                <span id="status-msg">Prêt</span>
-                <span id="countdown" class="countdown-display"></span>
+            <div class="param-box control-box">
+                <div class="status-bar">
+                    <span id="status-msg">Prêt</span>
+                    <span id="countdown" class="countdown-display"></span>
+                </div>
+                
+                <div class="buttons-row">
+                    <button id="btn-oneshot" class="monitor-btn btn-blue">Start</button>
+                    <button id="btn-continue" class="monitor-btn btn-orange">Continu</button>
+                    <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop</button>
+                </div>
             </div>
-            <div class="buttons-row">
-                <button id="btn-oneshot" class="monitor-btn btn-blue">Start (Unique)</button>
-                <button id="btn-continue" class="monitor-btn btn-orange">Surv. Continue</button>
-                <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop</button>
-            </div>
-        </div>
-    </div>
+
+        </div> </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        const audioCuff = new Audio('ta.mp3');
         let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' };
         let countdownTimer = null;
         let isContinuous = false;
@@ -96,7 +100,7 @@
 
         // Fullscreen
         els.btnFs.addEventListener('click', () => {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e));
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>{});
             else if (document.exitFullscreen) document.exitFullscreen();
         });
 
@@ -128,9 +132,11 @@
         });
 
         function performMeasurement() {
+            audioCuff.currentTime = 0;
+            audioCuff.play().catch(e => {});
+
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
-            
             setValuesOpacity(0.5);
             
             setTimeout(() => {
@@ -139,11 +145,8 @@
                 els.status.classList.remove('analyzing-alert');
                 
                 const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                if(isContinuous) {
-                    els.status.innerText = `Dernière : ${time}`;
-                } else {
-                    els.status.innerText = `Mesure : ${time}`;
-                }
+                if(isContinuous) { els.status.innerText = `Dernière : ${time}`; } 
+                else { els.status.innerText = `Mesure : ${time}`; }
             }, 5000);
         }
 
