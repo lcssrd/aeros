@@ -9,11 +9,10 @@
 <body class="monitor-mode">
 
     <div class="monitor-frame">
+        
         <div class="top-bar">
             <div class="monitor-logo brand-logo">AEROS</div>
-            
             <div class="patient-info">ADULTE - STANDARD</div>
-            
             <div class="top-right">
                 <div id="clock">--:--</div>
                 <button id="btn-fs" class="fs-btn" title="Plein écran">⛶</button>
@@ -95,17 +94,10 @@
             btnFs: document.getElementById('btn-fs')
         };
 
-        // GESTION PLEIN ECRAN
+        // Fullscreen
         els.btnFs.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Erreur plein écran: ${err.message}`);
-                });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e));
+            else if (document.exitFullscreen) document.exitFullscreen();
         });
 
         setInterval(() => {
@@ -136,7 +128,6 @@
         });
 
         function performMeasurement() {
-            // EFFET VISUEL
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
             
@@ -145,8 +136,6 @@
             setTimeout(() => {
                 updateDisplayFromBuffer();
                 setValuesOpacity(1);
-                
-                // FIN EFFET
                 els.status.classList.remove('analyzing-alert');
                 
                 const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
