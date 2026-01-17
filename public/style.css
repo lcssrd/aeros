@@ -21,9 +21,10 @@
 
 body {
     font-family: var(--font-ui);
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden; /* SCROLL INTERDIT */
+    min-height: 100vh; /* Au moins la hauteur de l'écran, mais peut grandir */
+    width: 100%;
+    overflow-y: auto; /* SCROLL AUTORISÉ */
+    overflow-x: hidden; /* Évite le scroll horizontal inutile */
     display: flex;
     flex-direction: column;
 }
@@ -45,9 +46,10 @@ body {
 body.accueil {
     background: radial-gradient(circle at center, #2b2b2b 0%, #000000 100%);
     align-items: center; justify-content: center;
+    height: 100vh; /* Garde l'accueil centré si possible */
 }
 body.accueil h1 { font-size: 4rem; margin-bottom: 5vh; }
-.menu-container { display: flex; gap: 20px; }
+.menu-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
 .menu-btn {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     width: 160px; height: 120px;
@@ -63,35 +65,45 @@ body.accueil h1 { font-size: 4rem; margin-bottom: 5vh; }
 /* --- PILOTE --- */
 body.pilote-mode {
     background-color: var(--bg-pilot); color: #e0e0e0;
-    padding: 1vh 1vw; align-items: center; justify-content: center;
+    padding: 20px; 
+    align-items: center; 
+    justify-content: center;
+    /* On retire le height: 100vh pour laisser scroller si besoin */
 }
 .pilot-container {
-    max-width: 500px; width: 100%; height: 100%; max-height: 98vh;
+    max-width: 500px; width: 100%; 
+    /* Suppression du height: 100% et max-height */
+    height: auto; 
     background: var(--surface-pilot); border-radius: 16px; border: 1px solid #333;
-    padding: 2vh 20px; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 30px 20px; 
+    display: flex; flex-direction: column; gap: 20px;
 }
 .pilot-header {
-    flex-shrink: 0; text-align: center; margin-bottom: 1vh; font-size: 1rem; color: #666;
+    text-align: center; margin-bottom: 10px; font-size: 1rem; color: #666;
     display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid #333; padding-bottom: 1vh;
+    border-bottom: 1px solid #333; padding-bottom: 10px;
 }
 .server-status-box {
-    flex-shrink: 0; background: #101010; border: 1px solid #333; border-radius: 8px;
-    padding: 1vh 10px; margin-bottom: 1vh;
+    background: #101010; border: 1px solid #333; border-radius: 8px;
+    padding: 15px 10px; 
 }
-.server-status-box h4 { margin: 0 0 0.5vh 0; font-size: 0.7rem; color: #666; text-transform: uppercase; text-align: center; }
+.server-status-box h4 { margin: 0 0 10px 0; font-size: 0.7rem; color: #666; text-transform: uppercase; text-align: center; }
 .status-grid { display: flex; justify-content: space-around; font-size: 1rem; }
 .status-label { font-size: 0.6rem; color: #555; display: block; }
 .val-hr { color: var(--color-hr); } .val-spo2 { color: var(--color-spo2); } .val-nibp { color: var(--color-nibp); }
-.control-grid { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-evenly; gap: 1vh; overflow: hidden; }
+
+.control-grid { 
+    display: flex; flex-direction: column; gap: 15px; 
+    /* Plus d'overflow hidden ici non plus */
+}
 .control-group {
-    background: #151515; padding: 1.5vh 15px; border-radius: 8px; border-left: 4px solid #333;
+    background: #151515; padding: 15px; border-radius: 8px; border-left: 4px solid #333;
     display: flex; flex-direction: column; justify-content: center;
 }
 .control-group.hr-group { border-color: var(--color-hr); }
 .control-group.spo2-group { border-color: var(--color-spo2); }
 .control-group.nibp-group { border-color: var(--color-nibp); }
-.control-group label { font-size: 0.75rem; color: #888; margin-bottom: 0.5vh; font-weight: 700; }
+.control-group label { font-size: 0.75rem; color: #888; margin-bottom: 5px; font-weight: 700; }
 .input-wrapper { display: flex; align-items: center; }
 input[type="number"] {
     width: 100%; background: transparent; border: none; color: #fff;
@@ -99,7 +111,7 @@ input[type="number"] {
 }
 input[type="number"]:focus { outline: none; border-bottom-color: #666; }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.slider-wrapper { margin-top: 0.5vh; display: flex; align-items: center; }
+.slider-wrapper { margin-top: 5px; display: flex; align-items: center; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; }
 input[type=range]:focus { outline: none; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #333; border-radius: 2px; }
@@ -111,45 +123,38 @@ input[type=range]::-webkit-slider-thumb {
 .spo2-group input[type=range]::-webkit-slider-thumb { background: var(--color-spo2); }
 .nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
 button#btn-update {
-    flex-shrink: 0; width: 100%; margin-top: 2vh; padding: 2vh;
+    width: 100%; margin-top: 10px; padding: 15px;
     background: var(--primary-btn); color: white; border: none; border-radius: 8px;
     font-size: 0.9rem; font-weight: bold; text-transform: uppercase; cursor: pointer;
 }
-#status { text-align: center; margin-top: 1vh; font-size: 0.8rem; height: 15px; color: #666; }
-.pilot-footer { text-align: center; margin-top: 1vh; font-size: 0.7rem; }
+#status { text-align: center; margin-top: 10px; font-size: 0.8rem; height: 15px; color: #666; }
+.pilot-footer { text-align: center; margin-top: 10px; font-size: 0.7rem; }
 
 
-/* --- MONITEUR (MODIFICATIONS MAJEURES) --- */
+/* --- MONITEUR --- */
 body.monitor-mode {
-    background-color: #000; /* Fond noir total */
+    background-color: #000; 
     color: #fff;
-    /* On retire le padding pour coller aux bords */
     padding: 0; 
-    align-items: flex-start; /* Alignement naturel */
+    align-items: flex-start;
 }
 
-/* Le conteneur principal devient "invisible" structurellement 
-   mais gère le layout vertical global */
 .monitor-frame {
     background-color: var(--bg-monitor);
-    /* PLUS DE CADRE, PLUS DE BORDURE */
-    width: 100vw;
-    height: 100vh;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    
+    width: 100%;
+    /* On change height: 100vh en min-height: 100vh pour permettre le scroll */
+    min-height: 100vh; 
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Important pour éviter le scroll */
+    /* Suppression de overflow: hidden */
 }
 
 /* Header */
 .top-bar {
-    flex-shrink: 0; /* Ne rétrécit pas */
+    flex-shrink: 0;
     display: flex; justify-content: space-between; align-items: center;
     padding: 0 20px; background-color: #0a0a0a; border-bottom: 1px solid #222;
-    height: 50px; /* Hauteur fixe raisonnable */
+    height: 50px;
 }
 .monitor-logo { font-size: 1.5rem; }
 .top-right { display: flex; align-items: center; gap: 15px; }
@@ -157,66 +162,72 @@ body.monitor-mode {
 .fs-btn:hover { color: #fff; }
 .patient-info { font-weight: 700; color: #fff; background: #222; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; }
 
-/* Zone Centrale (Paramètres) qui prend tout l'espace disponible */
+/* ZONE CENTRALE : LES CARTES */
 .monitor-grid {
-    flex-grow: 1; /* C'est lui qui s'étire */
-    display: flex; flex-direction: column; justify-content: space-evenly;
-    padding: 0; /* Pas de padding pour maximiser l'espace */
+    flex-grow: 1;
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    padding: 15px;
+    /* Le contenu peut maintenant pousser vers le bas */
 }
 
 .param-box {
-    flex: 1; /* Les 3 boites se partagent l'espace équitablement */
+    /* Suppression de flex: 1 qui forçait une taille. On met une min-height */
+    min-height: 180px; 
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 30px; /* Marge latérale interne */
-    border-bottom: 1px solid #1a1a1a;
+    padding: 20px 30px; 
+    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     width: 100%;
 }
-.param-box:last-child { border-bottom: none; }
+.param-box:last-child { border-bottom: 1px solid #333; } 
 
 .label-zone { width: 80px; }
 .label-text { font-size: 2rem; font-weight: 700; }
 .label-unit { font-size: 0.9rem; opacity: 0.7; }
 
-/* Valeurs en vh/vw pour s'adapter à TOUS les écrans */
 .value-zone { flex: 1; display: flex; justify-content: flex-end; align-items: baseline; font-family: var(--font-digital); }
 .value {
-    /* Taille fluide basée sur la hauteur de l'écran */
-    font-size: 12vh; 
+    /* Taille fixe responsive plutôt que vh pour éviter les soucis de scroll */
+    font-size: 5rem; 
     font-weight: 400; line-height: 1; text-shadow: 0 0 10px currentColor;
 }
-.nibp-box .value { font-size: 9vh; } /* Un peu plus petit pour PNI */
-.sep { font-size: 6vh; margin: 0 15px; opacity: 0.5; }
-.nibp-sub { position: absolute; bottom: 1vh; right: 30px; font-size: 2vh; color: #666; }
+.nibp-box .value { font-size: 4rem; }
+.sep { font-size: 3rem; margin: 0 15px; opacity: 0.5; }
+.nibp-sub { position: absolute; bottom: 10px; right: 30px; font-size: 1rem; color: #666; }
 
-.hr-box { color: var(--color-hr); }
-.spo2-box { color: var(--color-spo2); }
-.nibp-box { color: var(--color-nibp); }
+.hr-box { color: var(--color-hr); border-left: 4px solid var(--color-hr); }
+.spo2-box { color: var(--color-spo2); border-left: 4px solid var(--color-spo2); }
+.nibp-box { color: var(--color-nibp); border-left: 4px solid var(--color-nibp); }
+
 .value-blur { filter: blur(10px); opacity: 0.2; transition: all 0.5s; }
 .value-visible { filter: blur(0); opacity: 1; transition: all 0.5s; }
 
 .wave-container { flex: 1; height: 100%; max-height: 80px; margin: 0 40px; display: flex; align-items: center; opacity: 0.3; }
 .fake-wave { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, transparent 0px, transparent 20px, currentColor 21px, transparent 22px); mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); }
-.icon-heart { font-size: 4vh; margin-right: 20px; animation: heartbeat 1s infinite; }
+.icon-heart { font-size: 2.5rem; margin-right: 20px; animation: heartbeat 1s infinite; }
 @keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
 
 /* Controls Bas */
 .bottom-controls-container {
-    flex-shrink: 0; /* Hauteur fixe adaptée au contenu */
+    flex-shrink: 0; 
     background: #0a0a0a; border-top: 1px solid #222;
-    padding: 15px 20px; /* Plus d'espace */
-    display: flex; flex-direction: column; gap: 10px;
+    padding: 20px; 
+    display: flex; flex-direction: column; gap: 15px;
 }
 .status-bar { 
     display: flex; justify-content: space-between; align-items: center;
     color: #666; font-family: monospace; font-size: 1rem;
-    min-height: 40px; /* Espace réservé pour le gros texte */
+    min-height: 40px; 
 }
 .countdown-display { color: #e67e22; font-weight: bold; font-size: 1.2rem; }
 
-/* ANIMATION PULSE ADOUCIE */
 @keyframes text-pulse-soft {
     0% { transform: scale(1); opacity: 0.9; color: #2563eb; }
-    50% { transform: scale(1.05); opacity: 1; color: #fff; text-shadow: 0 0 8px #2563eb; } /* Scale réduit de 1.15 à 1.05 */
+    50% { transform: scale(1.05); opacity: 1; color: #fff; text-shadow: 0 0 8px #2563eb; }
     100% { transform: scale(1); opacity: 0.9; color: #2563eb; }
 }
 
@@ -225,22 +236,30 @@ body.monitor-mode {
     font-weight: 800 !important;
     text-transform: uppercase;
     letter-spacing: 2px;
-    animation: text-pulse-soft 1.2s infinite ease-in-out; /* Animation plus lente et douce */
+    animation: text-pulse-soft 1.2s infinite ease-in-out; 
     padding-left: 10px;
 }
 
-.buttons-row { display: flex; gap: 15px; }
+.buttons-row { display: flex; gap: 15px; flex-wrap: wrap; }
 
-/* BOUTONS PLUS GROS */
 .monitor-btn {
     flex: 1; 
-    padding: 18px 10px; /* Plus haut */
+    min-width: 150px; /* Assure une largeur min sur mobile */
+    padding: 18px 10px; 
     border-radius: 8px; border: none;
     font-weight: bold; 
-    font-size: 1rem; /* Texte plus gros */
+    font-size: 1rem;
     cursor: pointer; color: white;
 }
 .btn-blue { background: #2563eb; } .btn-blue:hover { background: #1d4ed8; }
 .btn-orange { background: #d35400; } .btn-orange:hover { background: #e67e22; }
 .btn-red { background: #c0392b; } .btn-red:hover { background: #e74c3c; }
 .active-mode { border: 2px solid #fff; box-shadow: 0 0 15px rgba(211, 84, 0, 0.5); }
+
+/* Responsive Mobile */
+@media (max-width: 600px) {
+    .value { font-size: 3.5rem; }
+    .nibp-box .value { font-size: 2.8rem; }
+    .label-text { font-size: 1.5rem; }
+    .param-box { padding: 15px; min-height: 120px; }
+}
