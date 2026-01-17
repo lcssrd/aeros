@@ -1,0 +1,375 @@
+/* --- VARIABLES & RESET --- */
+:root {
+    --bg-monitor: #000000;
+    --bg-pilot: #121212;
+    --surface-pilot: #1e1e1e;
+    
+    --primary-btn: #2563eb;
+    --primary-btn-hover: #1d4ed8;
+    
+    /* Couleurs Médicales Standards (ISO/IEC) */
+    --color-hr: #2ecc71;   /* Vert Vif (ECG/Pouls) */
+    --color-spo2: #00e5ff; /* Cyan Néon (SpO2) */
+    --color-nibp: #f5f5f5; /* Blanc/Gris (Pression Non Invasive) */
+    --color-label: #888888;
+    
+    --font-ui: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-digital: 'Courier New', Courier, monospace; /* Pour les chiffres alignés */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* RESET GENERIC */
+body {
+    font-family: var(--font-ui);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Empêche tout scroll global */
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- PAGE D'ACCUEIL & PILOTE (Centrage simple) --- */
+body.accueil, body.pilote-mode {
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- PAGE D'ACCUEIL --- */
+body.accueil {
+    background: radial-gradient(circle at center, #2b2b2b 0%, #000000 100%);
+    color: white;
+}
+
+h1 {
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.menu-container { display: flex; gap: 20px; }
+
+.menu-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 120px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+.menu-btn:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.3);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+.btn-icon { font-size: 2rem; margin-bottom: 10px; }
+.btn-text { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+
+/* --- INTERFACE PILOTE --- */
+body.pilote-mode {
+    background-color: var(--bg-pilot);
+    color: #e0e0e0;
+    padding: 20px;
+    overflow-y: auto; 
+}
+
+.pilot-container {
+    max-width: 450px;
+    width: 100%;
+    background: var(--surface-pilot);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
+
+.pilot-header {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.2rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.control-grid { display: grid; gap: 20px; }
+
+.control-group {
+    background: #151515;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #333;
+    transition: border-color 0.3s;
+}
+.control-group.hr-group { border-color: var(--color-hr); }
+.control-group.spo2-group { border-color: var(--color-spo2); }
+.control-group.nibp-group { border-color: var(--color-nibp); }
+
+.control-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.input-wrapper { position: relative; display: flex; align-items: center; }
+
+input[type="number"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: var(--font-digital);
+    font-size: 1.8rem;
+    border-bottom: 2px solid #333;
+    padding: 5px;
+    transition: all 0.2s;
+}
+input[type="number"]:focus { outline: none; border-bottom-color: #666; background: #1a1a1a; }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.slider-wrapper { margin-top: 15px; display: flex; align-items: center; }
+
+input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; background: transparent;
+}
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%; height: 6px; cursor: pointer;
+    background: #333; border-radius: 3px; transition: background 0.2s;
+}
+input[type=range]::-webkit-slider-thumb {
+    height: 18px; width: 18px; border-radius: 50%; background: #fff;
+    cursor: pointer; -webkit-appearance: none; margin-top: -6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5); border: 2px solid #1a1a1a;
+    transition: transform 0.1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+.hr-group input[type=range]::-webkit-slider-thumb { background: var(--color-hr); }
+.spo2-group input[type=range]::-webkit-slider-thumb { background: var(--color-spo2); }
+.nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
+
+button#btn-update {
+    width: 100%; margin-top: 30px; padding: 16px;
+    background: var(--primary-btn); color: white; border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s;
+}
+button#btn-update:hover { background: var(--primary-btn-hover); transform: translateY(-1px); }
+button#btn-update:active { transform: translateY(1px); }
+
+#status { text-align: center; margin-top: 15px; font-size: 0.85rem; height: 20px; color: #666; }
+
+
+/* --- MONITEUR (INTERFACE PATIENT) --- */
+
+/* Le body du moniteur sert de "mur" noir.
+   On centre le cadre dedans.
+*/
+body.monitor-mode {
+    background-color: #111; /* Fond très sombre autour du moniteur */
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px; /* Petite marge de sécurité */
+}
+
+/* CADRE DU MONITEUR
+   Ratio 3:4 (Portrait/Carré)
+   Responsive : S'adapte à la hauteur ou la largeur sans dépasser.
+*/
+.monitor-frame {
+    background-color: var(--bg-monitor);
+    border: 8px solid #333; /* Bordure physique de l'écran */
+    border-radius: 12px;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8); /* Ombre portée */
+    
+    /* CALCUL DES DIMENSIONS : */
+    /* On veut un ratio 3/4 (Largeur/Hauteur) soit aspect-ratio: 3/4 */
+    aspect-ratio: 3/4;
+    
+    /* La hauteur max est celle de l'écran - 20px de marge */
+    max-height: calc(100vh - 20px);
+    
+    /* La largeur se déduit du ratio, mais ne doit pas dépasser la largeur écran */
+    width: auto;
+    height: 100%; /* Essaie de prendre toute la hauteur dispo */
+    
+    /* Si l'écran est très large mais peu haut (format paysage classique),
+       height:100% va marcher.
+       Si l'écran est très étroit (mobile), la largeur va bloquer avant la hauteur.
+       On utilise object-fit logique via flex */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Rien ne dépasse du cadre */
+    position: relative;
+}
+
+/* Astuce Responsive pour garantir que le cadre ne déborde jamais 
+   si l'écran est plus étroit que le ratio 3/4 demandé
+*/
+@media (max-aspect-ratio: 3/4) {
+    .monitor-frame {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* --- INTERIEUR DU MONITEUR --- */
+
+/* Top Bar */
+.top-bar {
+    flex-shrink: 0; /* Ne rétrécit pas */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #0a0a0a;
+    border-bottom: 1px solid #222;
+    height: 50px;
+}
+.patient-info {
+    font-weight: 700; color: #fff; background: #222;
+    padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; letter-spacing: 1px;
+}
+#clock { font-family: var(--font-digital); font-size: 1.1rem; color: #aaa; }
+
+/* Grille principale */
+.monitor-grid {
+    flex-grow: 1; /* Prend tout l'espace restant */
+    display: flex;
+    flex-direction: column; /* On empile les 3 blocs verticalement */
+    justify-content: space-evenly; /* Espacement équitable */
+    padding: 10px 0;
+}
+
+/* Bloc Paramètre */
+.param-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+    /* Ajustement auto de la taille du contenu */
+    max-height: 33%; 
+}
+.param-box:last-child { border-bottom: none; }
+
+/* Labels */
+.label-zone { width: 80px; display: flex; flex-direction: column; }
+.label-text { font-size: 1.5rem; font-weight: 700; }
+.label-unit { font-size: 0.8rem; opacity: 0.7; }
+
+/* Valeurs */
+.value-zone {
+    flex: 1; display: flex; justify-content: flex-end; align-items: baseline;
+    font-family: var(--font-digital);
+}
+
+/* TAILLE RESPONSIVE DU TEXTE
+   On utilise 'cqh' (Container Query Height) ou des vmin pour que le texte 
+   grossisse avec le cadre, pas l'écran global.
+   Faute de support total container queries, on utilise une taille relative fluide.
+*/
+.value {
+    font-size: clamp(3rem, 10vh, 6rem); /* Taille dynamique */
+    font-weight: 400; line-height: 1; text-shadow: 0 0 10px currentColor;
+    transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+/* NIBP Ajustement */
+.nibp-box .value { font-size: clamp(2rem, 7vh, 4.5rem); }
+.sep { font-size: clamp(1.5rem, 5vh, 3rem); margin: 0 10px; opacity: 0.5; font-family: var(--font-ui); }
+.nibp-sub {
+    position: absolute; bottom: 10px; right: 20px;
+    font-size: 1rem; color: #666; font-family: var(--font-ui);
+}
+
+/* Couleurs */
+.hr-box { color: var(--color-hr); }
+.spo2-box { color: var(--color-spo2); }
+.nibp-box { color: var(--color-nibp); }
+.value-blur { filter: blur(8px); opacity: 0.15; transition: all 0.5s; }
+.value-visible { filter: blur(0); opacity: 1; transition: all 0.5s; }
+
+/* Icone Coeur */
+.icon-heart {
+    font-size: 2rem; margin-right: 20px;
+    animation: heartbeat 1s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+@keyframes heartbeat {
+    0% { transform: scale(1); opacity: 0.7; }
+    10% { transform: scale(1.15); opacity: 1; }
+    20% { transform: scale(1); opacity: 0.7; }
+    30% { transform: scale(1.15); opacity: 1; }
+    40% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Wave */
+.wave-container {
+    flex: 1; height: 40px; margin: 0 20px;
+    display: flex; align-items: center; opacity: 0.3;
+}
+.fake-wave {
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 20px, currentColor 21px, transparent 22px);
+    mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+}
+
+
+/* --- CONTROLES DU BAS --- */
+.bottom-controls-container {
+    flex-shrink: 0; /* Ne rétrécit pas */
+    background: #0a0a0a;
+    border-top: 1px solid #222;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: auto;
+}
+
+.status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    color: #666; font-family: monospace; font-size: 0.8rem; height: 15px;
+}
+.countdown-display { color: #e67e22; font-weight: bold; }
+
+.buttons-row { display: flex; gap: 10px; justify-content: space-between; }
+
+.monitor-btn {
+    flex: 1; padding: 12px 5px;
+    border-radius: 6px; border: none;
+    font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
+    cursor: pointer; transition: all 0.2s; color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.monitor-btn:active { transform: translateY(2px); }
+.monitor-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(100%); }
+
+.btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
+.btn-orange { background-color: #d35400; } .btn-orange:hover { background-color: #e67e22; }
+.btn-red { background-color: #c0392b; } .btn-red:hover { background-color: #e74c3c; }
+.active-mode { border: 2px solid #fff; box-shadow: 0 0 10px #d35400; }

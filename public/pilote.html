@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrôleur - Simulation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="pilote-mode">
+
+    <div class="pilot-container">
+        <div class="pilot-header">
+            Console Instructeur
+        </div>
+        
+        <div class="control-grid">
+            
+            <div class="control-group hr-group">
+                <label>Fréquence Cardiaque (BPM)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="bpm" value="80" min="0" max="250" oninput="syncSlider('bpm')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="bpm-slider" min="0" max="250" value="80" oninput="syncNumber('bpm')">
+                </div>
+            </div>
+
+            <div class="control-group spo2-group">
+                <label>Saturation O2 (%)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="spo2" value="98" min="50" max="100" oninput="syncSlider('spo2')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="spo2-slider" min="50" max="100" value="98" oninput="syncNumber('spo2')">
+                </div>
+            </div>
+
+            <div class="control-group nibp-group">
+                <label>Systolique (mmHg)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="sys" value="120" min="0" max="250" oninput="syncSlider('sys')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="sys-slider" min="0" max="250" value="120" oninput="syncNumber('sys')">
+                </div>
+
+                <label style="margin-top:15px;">Diastolique (mmHg)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="dia" value="80" min="0" max="180" oninput="syncSlider('dia')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="dia-slider" min="0" max="180" value="80" oninput="syncNumber('dia')">
+                </div>
+            </div>
+
+        </div>
+
+        <button id="btn-update" onclick="sendData()">Appliquer les valeurs</button>
+        <div id="status"></div>
+        
+        <div style="text-align:center; margin-top:20px;">
+             <a href="index.html" style="color:#444; text-decoration:none; font-size:0.8rem;">Quitter</a>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        // Synchronisation Input -> Slider
+        function syncSlider(id) {
+            const val = document.getElementById(id).value;
+            document.getElementById(id + '-slider').value = val;
+        }
+
+        // Synchronisation Slider -> Input
+        function syncNumber(id) {
+            const val = document.getElementById(id + '-slider').value;
+            document.getElementById(id).value = val;
+        }
+
+        function sendData() {
+            const data = {
+                bpm: document.getElementById('bpm').value,
+                spo2: document.getElementById('spo2').value,
+                sys: document.getElementById('sys').value,
+                dia: document.getElementById('dia').value
+            };
+
+            socket.emit('sendData', data);
+            
+            // Feedback visuel sur le bouton
+            const btn = document.getElementById('btn-update');
+            const originalText = btn.innerText;
+            const originalColor = getComputedStyle(btn).backgroundColor;
+
+            btn.style.background = "#2ecc71"; // Vert temporaire
+            btn.innerText = "TRANSMIS ✓";
+            
+            setTimeout(() => {
+                btn.style.background = ""; // Revient au style CSS par défaut (variable)
+                btn.innerText = originalText;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
