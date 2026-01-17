@@ -3,14 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrôleur - Simulation</title>
+    <title>Aeros Pilot</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="pilote-mode">
 
     <div class="pilot-container">
+        
         <div class="pilot-header">
-            Console Instructeur
+            <span class="brand-logo" style="font-size: 1.2rem;">AEROS</span>
+            <span>Console Pilote</span>
+        </div>
+
+        <div class="server-status-box">
+            <h4>Valeurs Serveur (En attente)</h4>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">FC</span>
+                    <span id="srv-bpm" class="val-hr">--</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">SpO2</span>
+                    <span id="srv-spo2" class="val-spo2">--</span>%
+                </div>
+                <div class="status-item">
+                    <span class="status-label">TA</span>
+                    <span class="val-nibp">
+                        <span id="srv-sys">--</span>/<span id="srv-dia">--</span>
+                    </span>
+                </div>
+            </div>
         </div>
         
         <div class="control-grid">
@@ -36,30 +58,30 @@
             </div>
 
             <div class="control-group nibp-group">
-                <label>Systolique (mmHg)</label>
-                <div class="input-wrapper">
-                    <input type="number" id="sys" value="120" min="0" max="250" oninput="syncSlider('sys')">
-                </div>
-                <div class="slider-wrapper">
-                    <input type="range" id="sys-slider" min="0" max="250" value="120" oninput="syncNumber('sys')">
-                </div>
-
-                <label style="margin-top:15px;">Diastolique (mmHg)</label>
-                <div class="input-wrapper">
-                    <input type="number" id="dia" value="80" min="0" max="180" oninput="syncSlider('dia')">
-                </div>
-                <div class="slider-wrapper">
-                    <input type="range" id="dia-slider" min="0" max="180" value="80" oninput="syncNumber('dia')">
+                <label>Pression (Sys / Dia)</label>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex:1">
+                        <input type="number" id="sys" value="120" oninput="syncSlider('sys')">
+                        <div class="slider-wrapper">
+                            <input type="range" id="sys-slider" min="0" max="250" value="120" oninput="syncNumber('sys')">
+                        </div>
+                    </div>
+                    <div style="flex:1">
+                        <input type="number" id="dia" value="80" oninput="syncSlider('dia')">
+                        <div class="slider-wrapper">
+                            <input type="range" id="dia-slider" min="0" max="180" value="80" oninput="syncNumber('dia')">
+                        </div>
+                    </div>
                 </div>
             </div>
 
         </div>
 
-        <button id="btn-update" onclick="sendData()">Appliquer les valeurs</button>
+        <button id="btn-update" onclick="sendData()">TRANSMETTRE</button>
         <div id="status"></div>
         
-        <div style="text-align:center; margin-top:20px;">
-             <a href="index.html" style="color:#444; text-decoration:none; font-size:0.8rem;">Quitter</a>
+        <div class="pilot-footer">
+             <a href="index.html" style="color:#444; text-decoration:none;">Quitter</a>
         </div>
     </div>
 
@@ -67,16 +89,18 @@
     <script>
         const socket = io();
         
-        // Synchronisation Input -> Slider
-        function syncSlider(id) {
-            const val = document.getElementById(id).value;
-            document.getElementById(id + '-slider').value = val;
-        }
+        socket.on('updateParams', (data) => {
+            document.getElementById('srv-bpm').innerText = data.bpm;
+            document.getElementById('srv-spo2').innerText = data.spo2;
+            document.getElementById('srv-sys').innerText = data.sys;
+            document.getElementById('srv-dia').innerText = data.dia;
+        });
 
-        // Synchronisation Slider -> Input
+        function syncSlider(id) {
+            document.getElementById(id + '-slider').value = document.getElementById(id).value;
+        }
         function syncNumber(id) {
-            const val = document.getElementById(id + '-slider').value;
-            document.getElementById(id).value = val;
+            document.getElementById(id).value = document.getElementById(id + '-slider').value;
         }
 
         function sendData() {
@@ -86,19 +110,13 @@
                 sys: document.getElementById('sys').value,
                 dia: document.getElementById('dia').value
             };
-
             socket.emit('sendData', data);
-            
-            // Feedback visuel sur le bouton
             const btn = document.getElementById('btn-update');
             const originalText = btn.innerText;
-            const originalColor = getComputedStyle(btn).backgroundColor;
-
-            btn.style.background = "#2ecc71"; // Vert temporaire
-            btn.innerText = "TRANSMIS ✓";
-            
+            btn.style.background = "#2ecc71";
+            btn.innerText = "ENVOYÉ ✓";
             setTimeout(() => {
-                btn.style.background = ""; // Revient au style CSS par défaut (variable)
+                btn.style.background = ""; 
                 btn.innerText = originalText;
             }, 1000);
         }

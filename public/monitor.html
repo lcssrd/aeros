@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moniteur SV - Cycle</title>
+    <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="monitor-mode">
 
     <div class="monitor-frame">
-
         <div class="top-bar">
+            <div class="monitor-logo brand-logo">AEROS</div>
             <div class="patient-info">ADULTE - STANDARD</div>
             <div id="clock">--:--</div>
         </div>
@@ -54,7 +54,6 @@
                     PAM: <span id="map-disp" class="value-blur">--</span>
                 </div>
             </div>
-
         </div>
 
         <div class="bottom-controls-container">
@@ -62,33 +61,21 @@
                 <span id="status-msg">Prêt</span>
                 <span id="countdown" class="countdown-display"></span>
             </div>
-
             <div class="buttons-row">
-                <button id="btn-oneshot" class="monitor-btn btn-blue">
-                    Start (Unique)
-                </button>
-
-                <button id="btn-continue" class="monitor-btn btn-orange">
-                    Surv. Continue (2min)
-                </button>
-
-                <button id="btn-stop" class="monitor-btn btn-red" disabled>
-                    Stop Surv.
-                </button>
+                <button id="btn-oneshot" class="monitor-btn btn-blue">Start (Unique)</button>
+                <button id="btn-continue" class="monitor-btn btn-orange">Surv. Continue</button>
+                <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop</button>
             </div>
         </div>
+    </div>
 
-    </div> <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' };
+        let countdownTimer = null;
+        let isContinuous = false;
 
-        // -- VARIABLES D'ETAT --
-        let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' }; // Les données qui arrivent du pilote
-        let cycleTimer = null;      // Le timer pour le cycle de 2 minutes
-        let countdownTimer = null;  // Le timer pour l'affichage "1:59"
-        let isContinuous = false;   // Mode actuel
-
-        // -- ELEMENTS DOM --
         const els = {
             bpm: document.getElementById('bpm-disp'),
             spo2: document.getElementById('spo2-disp'),
@@ -97,101 +84,73 @@
             map: document.getElementById('map-disp'),
             status: document.getElementById('status-msg'),
             countdown: document.getElementById('countdown'),
-            
             btnOne: document.getElementById('btn-oneshot'),
             btnCont: document.getElementById('btn-continue'),
             btnStop: document.getElementById('btn-stop')
         };
 
-        // -- HORLOGE --
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock').innerText = 
-                now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // -- 1. RECEPTION DES DONNEES (Buffer uniquement) --
-        socket.on('updateParams', (data) => {
-            serverBuffer = data;
-            // On NE met PAS à jour l'affichage ici. 
-        });
+        socket.on('updateParams', (data) => { serverBuffer = data; });
 
-        // -- 2. GESTION DES BOUTONS --
-
-        // BOUTON 1 : Start (Prise Unique)
         els.btnOne.addEventListener('click', () => {
-            stopAllCycles(); 
+            stopAllCycles();
             els.status.innerText = "Mode : Prise Ponctuelle";
             performMeasurement();
         });
 
-        // BOUTON 2 : Surveillance Continue
         els.btnCont.addEventListener('click', () => {
             stopAllCycles();
-            
             isContinuous = true;
-            els.status.innerText = "Mode : Surveillance Continue";
+            els.status.innerText = "Surveillance Continue";
             els.btnStop.disabled = false;
             els.btnCont.classList.add('active-mode');
-
             performMeasurement();
-            startCycleCountdown(120); // 120 secondes
+            startCycleCountdown(120);
         });
 
-        // BOUTON 3 : Stop Surveillance
         els.btnStop.addEventListener('click', () => {
             stopAllCycles();
-            els.status.innerText = "Surveillance arrêtée";
-            els.countdown.innerText = "";
+            els.status.innerText = "Arrêté";
         });
 
-        // -- 3. LOGIQUE DE MESURE --
-
         function performMeasurement() {
-            els.status.innerText = "Analyse en cours...";
+            els.status.innerText = "Analyse...";
             setValuesOpacity(0.5);
-
             setTimeout(() => {
                 updateDisplayFromBuffer();
                 setValuesOpacity(1);
-                
-                const time = new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-                els.status.innerText = `Dernière mesure : ${time}`;
+                const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+                els.status.innerText = `Mesure : ${time}`;
             }, 5000);
         }
 
-        // Met à jour le DOM avec le contenu du Buffer
         function updateDisplayFromBuffer() {
             unblurAll();
-
             els.bpm.innerText = serverBuffer.bpm;
             els.spo2.innerText = serverBuffer.spo2;
             els.sys.innerText = serverBuffer.sys;
             els.dia.innerText = serverBuffer.dia;
-
             if(serverBuffer.sys !== '--' && serverBuffer.dia !== '--') {
                 const map = Math.round((parseInt(serverBuffer.sys) + 2 * parseInt(serverBuffer.dia)) / 3);
                 els.map.innerText = map;
             }
         }
 
-        // -- 4. GESTION DU CYCLE & COMPTE A REBOURS --
-
         function startCycleCountdown(durationSeconds) {
             let timeLeft = durationSeconds;
-            
             const updateTimerDisplay = () => {
                 const m = Math.floor(timeLeft / 60);
                 const s = timeLeft % 60;
                 els.countdown.innerText = `Prochaine : ${m}:${s.toString().padStart(2, '0')}`;
             };
-
             updateTimerDisplay();
-
             countdownTimer = setInterval(() => {
                 timeLeft--;
                 updateTimerDisplay();
-
                 if (timeLeft <= 0) {
                     clearInterval(countdownTimer);
                     if (isContinuous) {
@@ -210,19 +169,8 @@
             els.countdown.innerText = "";
         }
 
-        // -- UTILITAIRES VISUELS --
-        function setValuesOpacity(op) {
-            const targets = document.querySelectorAll('.value');
-            targets.forEach(el => el.style.opacity = op);
-        }
-        
-        function unblurAll() {
-            const targets = document.querySelectorAll('.value-blur');
-            targets.forEach(el => {
-                el.classList.remove('value-blur');
-                el.classList.add('value-visible');
-            });
-        }
+        function setValuesOpacity(op) { document.querySelectorAll('.value').forEach(el => el.style.opacity = op); }
+        function unblurAll() { document.querySelectorAll('.value-blur').forEach(el => { el.classList.remove('value-blur'); el.classList.add('value-visible'); }); }
     </script>
 </body>
 </html>
