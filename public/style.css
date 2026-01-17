@@ -21,9 +21,9 @@
 
 body {
     font-family: var(--font-ui);
-    height: 100vh; /* Force la hauteur écran */
+    height: 100vh;
     width: 100vw;
-    overflow: hidden; /* INTERDIT LE SCROLL GLOBAL */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
 }
@@ -74,7 +74,7 @@ body.accueil h1 {
 body.pilote-mode {
     background-color: var(--bg-pilot);
     color: #e0e0e0;
-    padding: 1vh 1vw; /* Marges minimales */
+    padding: 1vh 1vw;
     align-items: center;
     justify-content: center;
 }
@@ -82,21 +82,17 @@ body.pilote-mode {
 .pilot-container {
     max-width: 500px;
     width: 100%;
-    height: 100%; /* Prend toute la hauteur dispo */
-    max-height: 98vh; /* Sécurité */
-    
+    height: 100%;
+    max-height: 98vh;
     background: var(--surface-pilot);
     border-radius: 16px;
     border: 1px solid #333;
     padding: 2vh 20px;
-    
-    /* FLEX LAYOUT POUR TOUT FAIRE TENIR */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Répartit l'espace verticalement */
+    justify-content: space-between;
 }
 
-/* Header Pilote compact */
 .pilot-header {
     flex-shrink: 0;
     text-align: center;
@@ -107,7 +103,6 @@ body.pilote-mode {
     padding-bottom: 1vh;
 }
 
-/* Boite Info Serveur Compacte */
 .server-status-box {
     flex-shrink: 0;
     background: #101010; border: 1px solid #333; border-radius: 8px;
@@ -123,19 +118,18 @@ body.pilote-mode {
 .val-hr { color: var(--color-hr); } .val-spo2 { color: var(--color-spo2); } .val-nibp { color: var(--color-nibp); }
 
 
-/* Grille de contrôles qui s'adapte */
 .control-grid {
-    flex-grow: 1; /* Prend l'espace restant */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly; /* Répartition équitable */
+    justify-content: space-evenly;
     gap: 1vh;
-    overflow: hidden; /* Au cas où */
+    overflow: hidden;
 }
 
 .control-group {
     background: #151515;
-    padding: 1.5vh 15px; /* Padding vertical relatif */
+    padding: 1.5vh 15px;
     border-radius: 8px;
     border-left: 4px solid #333;
     display: flex;
@@ -150,7 +144,6 @@ body.pilote-mode {
     font-size: 0.75rem; color: #888; margin-bottom: 0.5vh; font-weight: 700;
 }
 
-/* Inputs compacts */
 .input-wrapper { display: flex; align-items: center; }
 input[type="number"] {
     width: 100%; background: transparent; border: none; color: #fff;
@@ -160,7 +153,6 @@ input[type="number"] {
 input[type="number"]:focus { outline: none; border-bottom-color: #666; }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-/* Sliders compacts */
 .slider-wrapper { margin-top: 0.5vh; display: flex; align-items: center; }
 input[type=range] {
     -webkit-appearance: none; appearance: none;
@@ -181,7 +173,6 @@ input[type=range]::-webkit-slider-thumb {
 .nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
 
 
-/* Bouton & Footer Pilote */
 button#btn-update {
     flex-shrink: 0;
     width: 100%; margin-top: 2vh; padding: 2vh;
@@ -208,23 +199,16 @@ body.monitor-mode {
     border: 8px solid #333;
     border-radius: 12px;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    
-    /* Ratio 3:4 respecté, mais responsive */
     aspect-ratio: 3/4;
-    
-    /* Contraintes pour ne jamais dépasser l'écran */
     max-height: calc(100vh - 20px);
     max-width: calc(100vw - 20px);
     width: auto;
     height: 100%;
-    
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
 }
-/* Si l'écran est plus large que haut (cas normal), height prime. 
-   Si l'écran est très étroit (mobile portrait), width prime. */
 @media (max-aspect-ratio: 3/4) {
     .monitor-frame {
         width: 100%;
@@ -239,6 +223,18 @@ body.monitor-mode {
     height: 50px;
 }
 .monitor-logo { font-size: 1.5rem; }
+
+/* Groupe Droite (Horloge + Bouton FS) */
+.top-right { display: flex; align-items: center; gap: 15px; }
+
+/* Bouton Plein Ecran */
+.fs-btn {
+    background: none; border: none;
+    color: #666; font-size: 1.5rem;
+    cursor: pointer; padding: 0; line-height: 1;
+    transition: color 0.2s;
+}
+.fs-btn:hover { color: #fff; }
 
 .patient-info {
     font-weight: 700; color: #fff; background: #222;
@@ -287,7 +283,6 @@ body.monitor-mode {
 .icon-heart { font-size: 1.5rem; margin-right: 15px; animation: heartbeat 1s infinite; }
 @keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
 
-/* Controls Bas */
 .bottom-controls-container {
     flex-shrink: 0; background: #0a0a0a; border-top: 1px solid #222;
     padding: 10px 15px; display: flex; flex-direction: column; gap: 8px;
@@ -300,3 +295,8 @@ body.monitor-mode {
 }
 .btn-blue { background: #2563eb; } .btn-orange { background: #d35400; } .btn-red { background: #c0392b; }
 .active-mode { border: 2px solid #fff; }
+
+@media (max-width: 768px) {
+    .monitor-frame { border-width: 0; border-radius: 0; width: 100vw; height: 100vh; max-height: 100vh; max-width: 100vw; }
+    .top-bar { padding: 5px 10px; }
+}

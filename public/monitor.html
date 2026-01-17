@@ -11,8 +11,13 @@
     <div class="monitor-frame">
         <div class="top-bar">
             <div class="monitor-logo brand-logo">AEROS</div>
+            
             <div class="patient-info">ADULTE - STANDARD</div>
-            <div id="clock">--:--</div>
+            
+            <div class="top-right">
+                <div id="clock">--:--</div>
+                <button id="btn-fs" class="fs-btn" title="Plein écran">⛶</button>
+            </div>
         </div>
 
         <div class="monitor-grid">
@@ -86,8 +91,22 @@
             countdown: document.getElementById('countdown'),
             btnOne: document.getElementById('btn-oneshot'),
             btnCont: document.getElementById('btn-continue'),
-            btnStop: document.getElementById('btn-stop')
+            btnStop: document.getElementById('btn-stop'),
+            btnFs: document.getElementById('btn-fs')
         };
+
+        // GESTION PLEIN ECRAN
+        els.btnFs.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Erreur plein écran: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
 
         setInterval(() => {
             const now = new Date();
