@@ -117,14 +117,12 @@
 
         els.btnOne.addEventListener('click', () => {
             stopAllCycles();
-            els.status.innerText = "Mode : Prise Ponctuelle";
             performMeasurement();
         });
 
         els.btnCont.addEventListener('click', () => {
             stopAllCycles();
             isContinuous = true;
-            els.status.innerText = "Surveillance Continue";
             els.btnStop.disabled = false;
             els.btnCont.classList.add('active-mode');
             performMeasurement();
@@ -134,16 +132,29 @@
         els.btnStop.addEventListener('click', () => {
             stopAllCycles();
             els.status.innerText = "Arrêté";
+            els.status.classList.remove('analyzing-alert');
         });
 
         function performMeasurement() {
-            els.status.innerText = "Analyse...";
+            // EFFET VISUEL
+            els.status.innerText = "ANALYSE...";
+            els.status.classList.add('analyzing-alert');
+            
             setValuesOpacity(0.5);
+            
             setTimeout(() => {
                 updateDisplayFromBuffer();
                 setValuesOpacity(1);
+                
+                // FIN EFFET
+                els.status.classList.remove('analyzing-alert');
+                
                 const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                els.status.innerText = `Mesure : ${time}`;
+                if(isContinuous) {
+                    els.status.innerText = `Dernière : ${time}`;
+                } else {
+                    els.status.innerText = `Mesure : ${time}`;
+                }
             }, 5000);
         }
 
@@ -186,6 +197,7 @@
             els.btnStop.disabled = true;
             els.btnCont.classList.remove('active-mode');
             els.countdown.innerText = "";
+            els.status.classList.remove('analyzing-alert');
         }
 
         function setValuesOpacity(op) { document.querySelectorAll('.value').forEach(el => el.style.opacity = op); }

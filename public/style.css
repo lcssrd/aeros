@@ -23,7 +23,7 @@ body {
     font-family: var(--font-ui);
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
+    overflow: hidden; /* INTERDIT LE SCROLL GLOBAL */
     display: flex;
     flex-direction: column;
 }
@@ -74,7 +74,7 @@ body.accueil h1 {
 body.pilote-mode {
     background-color: var(--bg-pilot);
     color: #e0e0e0;
-    padding: 1vh 1vw;
+    padding: 1vh 1vw; /* Marges minimales */
     align-items: center;
     justify-content: center;
 }
@@ -82,17 +82,20 @@ body.pilote-mode {
 .pilot-container {
     max-width: 500px;
     width: 100%;
-    height: 100%;
-    max-height: 98vh;
+    height: 100%; /* Prend toute la hauteur dispo */
+    max-height: 98vh; /* Sécurité */
     background: var(--surface-pilot);
     border-radius: 16px;
     border: 1px solid #333;
     padding: 2vh 20px;
+    
+    /* FLEX LAYOUT POUR TOUT FAIRE TENIR */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-between; /* Répartit l'espace verticalement */
 }
 
+/* Header Pilote compact */
 .pilot-header {
     flex-shrink: 0;
     text-align: center;
@@ -103,6 +106,7 @@ body.pilote-mode {
     padding-bottom: 1vh;
 }
 
+/* Boite Info Serveur Compacte */
 .server-status-box {
     flex-shrink: 0;
     background: #101010; border: 1px solid #333; border-radius: 8px;
@@ -118,18 +122,19 @@ body.pilote-mode {
 .val-hr { color: var(--color-hr); } .val-spo2 { color: var(--color-spo2); } .val-nibp { color: var(--color-nibp); }
 
 
+/* Grille de contrôles qui s'adapte */
 .control-grid {
-    flex-grow: 1;
+    flex-grow: 1; /* Prend l'espace restant */
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-evenly; /* Répartition équitable */
     gap: 1vh;
-    overflow: hidden;
+    overflow: hidden; 
 }
 
 .control-group {
     background: #151515;
-    padding: 1.5vh 15px;
+    padding: 1.5vh 15px; /* Padding vertical relatif */
     border-radius: 8px;
     border-left: 4px solid #333;
     display: flex;
@@ -144,6 +149,7 @@ body.pilote-mode {
     font-size: 0.75rem; color: #888; margin-bottom: 0.5vh; font-weight: 700;
 }
 
+/* Inputs compacts */
 .input-wrapper { display: flex; align-items: center; }
 input[type="number"] {
     width: 100%; background: transparent; border: none; color: #fff;
@@ -153,6 +159,7 @@ input[type="number"] {
 input[type="number"]:focus { outline: none; border-bottom-color: #666; }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
+/* Sliders compacts */
 .slider-wrapper { margin-top: 0.5vh; display: flex; align-items: center; }
 input[type=range] {
     -webkit-appearance: none; appearance: none;
@@ -173,6 +180,7 @@ input[type=range]::-webkit-slider-thumb {
 .nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
 
 
+/* Bouton & Footer Pilote */
 button#btn-update {
     flex-shrink: 0;
     width: 100%; margin-top: 2vh; padding: 2vh;
@@ -199,17 +207,24 @@ body.monitor-mode {
     border: 8px solid #333;
     border-radius: 12px;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    aspect-ratio: 3/4;
+    
+    /* MODIFICATION : RATIO 4:3 (Paysage) pour raccourcir la hauteur */
+    aspect-ratio: 4/3;
+    
+    /* Contraintes pour ne jamais dépasser l'écran */
     max-height: calc(100vh - 20px);
     max-width: calc(100vw - 20px);
     width: auto;
     height: 100%;
+    
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
 }
-@media (max-aspect-ratio: 3/4) {
+
+/* Adaptation pour les écrans plus étroits que le ratio 4:3 */
+@media (max-aspect-ratio: 4/3) {
     .monitor-frame {
         width: 100%;
         height: auto;
@@ -244,7 +259,8 @@ body.monitor-mode {
 .monitor-grid {
     flex-grow: 1;
     display: flex; flex-direction: column; justify-content: space-evenly;
-    padding: 1vh 0;
+    /* On réduit le padding vertical pour gagner de la place */
+    padding: 0.5vh 0;
 }
 
 .param-box {
@@ -283,17 +299,43 @@ body.monitor-mode {
 .icon-heart { font-size: 1.5rem; margin-right: 15px; animation: heartbeat 1s infinite; }
 @keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
 
+/* Controls Bas */
 .bottom-controls-container {
     flex-shrink: 0; background: #0a0a0a; border-top: 1px solid #222;
     padding: 10px 15px; display: flex; flex-direction: column; gap: 8px;
+    height: auto;
 }
-.status-bar { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; }
+.status-bar { 
+    display: flex; justify-content: space-between; align-items: center;
+    color: #666; font-family: monospace; font-size: 0.8rem;
+    min-height: 30px; /* Laisse place au gros texte */
+}
+.countdown-display { color: #e67e22; font-weight: bold; font-size: 1rem; }
+
+/* ANIMATION ALERT "ANALYSE..." */
+@keyframes text-pulse-alert {
+    0% { transform: scale(1); opacity: 0.7; color: #2563eb; }
+    50% { transform: scale(1.15); opacity: 1; color: #fff; text-shadow: 0 0 15px #2563eb; }
+    100% { transform: scale(1); opacity: 0.7; color: #2563eb; }
+}
+
+.analyzing-alert {
+    font-size: 1.6rem !important; 
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: text-pulse-alert 0.8s infinite ease-in-out;
+    padding-left: 10px;
+}
+
 .buttons-row { display: flex; gap: 8px; }
 .monitor-btn {
     flex: 1; padding: 12px 5px; border-radius: 6px; border: none;
     font-weight: bold; font-size: 0.75rem; cursor: pointer; color: white;
 }
-.btn-blue { background: #2563eb; } .btn-orange { background: #d35400; } .btn-red { background: #c0392b; }
+.btn-blue { background: #2563eb; } .btn-blue:hover { background: #1d4ed8; }
+.btn-orange { background: #d35400; } .btn-orange:hover { background: #e67e22; }
+.btn-red { background: #c0392b; } .btn-red:hover { background: #e74c3c; }
 .active-mode { border: 2px solid #fff; }
 
 @media (max-width: 768px) {
