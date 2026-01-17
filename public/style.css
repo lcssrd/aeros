@@ -1,15 +1,16 @@
 /* --- VARIABLES & RESET --- */
 :root {
-    --bg-body: #1a1a1a;
-    --bg-monitor: #000000;
-    --card-surface: #111111;
+    --bg-color: #000000;
+    --card-bg: #0a0a0a;
+    --border-dim: #222;
     
     --primary-btn: #2563eb;
     
+    /* Couleurs Médicales NÉON */
     --color-hr: #2ecc71;   
     --color-spo2: #00e5ff; 
     --color-nibp: #f5f5f5; 
-    --color-sys: #888888;
+    --color-sys: #444; 
     
     --font-ui: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --font-digital: 'Courier New', Courier, monospace;
@@ -18,210 +19,249 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
+    background-color: var(--bg-color);
     font-family: var(--font-ui);
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
+    overflow: hidden; /* Zéro scroll */
     display: flex;
     flex-direction: column;
+    color: white;
 }
 
 /* --- LOGO --- */
 .brand-logo {
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #fff;
-    font-style: italic;
-    background: linear-gradient(45deg, #fff, #888);
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #fff, #666);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 /* --- ACCUEIL --- */
 body.accueil {
-    background: radial-gradient(circle at center, #2b2b2b 0%, #000000 100%);
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
     align-items: center; justify-content: center;
 }
-body.accueil h1 { font-size: 3rem; margin-bottom: 40px; color: white; }
-.menu-container { display: flex; gap: 20px; justify-content: center; }
+body.accueil h1 { font-size: 3rem; margin-bottom: 40px; }
+.menu-container { display: flex; gap: 20px; }
 .menu-btn {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     width: 140px; height: 100px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    background: #111; border: 1px solid #333;
     border-radius: 12px; color: #fff; text-decoration: none;
-    transition: all 0.2s;
+    transition: 0.2s;
 }
-.menu-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.menu-btn:hover { background: #222; transform: translateY(-3px); border-color: #555; }
 .btn-icon { font-size: 1.8rem; margin-bottom: 8px; }
 
-/* --- PILOTE --- */
-body.pilote-mode {
-    background-color: #121212; color: #e0e0e0;
-    padding: 10px; align-items: center; justify-content: center; overflow-y: auto;
-}
+/* --- PILOTE (Simple & Clean) --- */
+body.pilote-mode { padding: 20px; overflow-y: auto; align-items: center; justify-content: center; }
 .pilot-container {
-    max-width: 500px; width: 100%; height: auto;
-    background: #1e1e1e; border-radius: 12px; border: 1px solid #333;
+    width: 100%; max-width: 500px;
+    background: #111; border: 1px solid #333; border-radius: 12px;
     padding: 20px; display: flex; flex-direction: column; gap: 15px;
 }
-.pilot-header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; }
-.server-status-box { background: #101010; border: 1px solid #333; border-radius: 6px; padding: 10px; }
-.server-status-box h4 { margin: 0 0 5px 0; font-size: 0.7rem; color: #666; text-align: center; }
-.status-grid { display: flex; justify-content: space-around; font-size: 0.9rem; font-family: var(--font-digital); }
+.pilot-header { text-align: center; border-bottom: 1px solid #222; padding-bottom: 10px; display: flex; justify-content: space-between; color: #888; }
+.server-status-box { background: #000; border: 1px solid #222; border-radius: 6px; padding: 10px; }
+.server-status-box h4 { margin: 0 0 5px 0; font-size: 0.7rem; color: #555; text-align: center; text-transform: uppercase; }
+.status-grid { display: flex; justify-content: space-around; font-family: var(--font-digital); }
 .val-hr { color: var(--color-hr); } .val-spo2 { color: var(--color-spo2); } .val-nibp { color: var(--color-nibp); }
 .control-grid { display: flex; flex-direction: column; gap: 12px; }
-.control-group { background: #151515; padding: 10px; border-radius: 6px; border-left: 3px solid #333; }
+.control-group { background: #080808; padding: 12px; border-radius: 6px; border-left: 3px solid #333; }
 .control-group.hr-group { border-color: var(--color-hr); } .control-group.spo2-group { border-color: var(--color-spo2); } .control-group.nibp-group { border-color: var(--color-nibp); }
-.control-group label { font-size: 0.75rem; color: #888; margin-bottom: 5px; font-weight: 700; display: block;}
-input[type="number"] { width: 100%; background: transparent; border: none; color: #fff; font-family: var(--font-digital); font-size: 1.2rem; border-bottom: 1px solid #333; }
-input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; margin-top: 5px; cursor: pointer; }
+.control-group label { font-size: 0.75rem; color: #666; margin-bottom: 5px; font-weight: 700; display: block; }
+input[type="number"] { width: 100%; background: transparent; border: none; color: #fff; font-family: var(--font-digital); font-size: 1.4rem; border-bottom: 1px solid #333; }
+input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; margin-top: 8px; cursor: pointer; }
 input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; border-radius: 2px; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: #fff; margin-top: -4px; }
-.hr-group input[type=range]::-webkit-slider-thumb { background: var(--color-hr); } .spo2-group input[type=range]::-webkit-slider-thumb { background: var(--color-spo2); } .nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
-button#btn-update { width: 100%; padding: 12px; background: var(--primary-btn); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
+.hr-group input[type=range]::-webkit-slider-thumb { background: var(--color-hr); } 
+.spo2-group input[type=range]::-webkit-slider-thumb { background: var(--color-spo2); } 
+.nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
+button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
 
 
-/* --- MONITEUR --- */
+/* =========================================
+   --- MONITEUR : DESIGN PROFESSIONNEL --- 
+   ========================================= */
 
-body.monitor-mode {
-    background-color: var(--bg-body);
-    color: #fff;
-    display: flex;
-    align-items: center; 
-    justify-content: center;
-    padding: 0;
-}
-
+/* Le conteneur prend tout l'écran, pas de cadre visible */
 .monitor-frame {
-    background-color: var(--bg-monitor);
-    width: 100%;
-    max-width: 600px;
-    height: 100vh;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5);
-    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-/* HEADER */
+/* 1. HEADER (Discret et technique) */
 .top-bar {
-    flex-shrink: 0;
+    height: 50px;
     display: flex; justify-content: space-between; align-items: center;
     padding: 0 20px; 
-    background-color: #0a0a0a; border-bottom: 1px solid #222;
-    height: 60px;
+    border-bottom: 1px solid #222;
+    background: #050505;
 }
 .monitor-logo { font-size: 1.2rem; }
-.top-right { display: flex; align-items: center; gap: 15px; }
-.fs-btn { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; }
-.patient-info { font-weight: 700; color: #eee; background: #222; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; }
+.patient-info { 
+    font-weight: 600; color: #888; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+}
+.top-right { display: flex; align-items: center; gap: 15px; color: #888; font-family: var(--font-digital); }
+.fs-btn { background: none; border: none; color: #444; font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+.fs-btn:hover { color: #fff; }
 
-/* GRILLE PRINCIPALE */
+/* 2. GRILLE INTELLIGENTE */
 .monitor-grid {
-    flex: 1; 
-    display: flex; 
-    flex-direction: column;
-    /* CENTRAGE VERTICAL : Les cartes seront au milieu */
-    justify-content: center; 
-    gap: 15px;
-    padding: 20px; 
-    overflow-y: hidden; 
+    flex: 1; /* Prend tout l'espace restant */
+    display: grid;
+    gap: 2px; /* Lignes de séparation très fines comme sur les vrais scopes */
+    padding: 0;
+    
+    /* CONFIGURATION RESPONSIVE AUTOMATIQUE */
+    /* Mobile (Portrait) : 1 colonne */
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 1fr); /* 4 lignes égales */
 }
 
-/* CARTES */
+/* Sur écran large (Paysage) : 2 colonnes x 2 lignes */
+@media (min-aspect-ratio: 1/1) {
+    .monitor-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+}
+
+/* Sur écran très large (Ultrawide) : 4 colonnes */
+@media (min-aspect-ratio: 2/1) {
+    .monitor-grid {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: 1fr;
+    }
+}
+
+/* 3. STYLE DES CARTES (Module) */
 .param-box {
-    flex: 1;
-    /* HAUTEUR REDUITE : Passage de 25% à 20% max */
-    max-height: 20%; 
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column; /* Organisation verticale par défaut pour mieux gérer l'espace */
+    justify-content: center;
+    position: relative;
+    padding: 15px 25px;
+    border: 1px solid transparent; /* Prévient le saut de pixel */
     
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px; 
-    
-    background-color: var(--card-surface);
-    border-radius: 12px;
-    border-left: 5px solid #333;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    /* Effet "Scanline" subtil */
+    background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
 }
 
-.hr-box { border-left-color: var(--color-hr); }
-.spo2-box { border-left-color: var(--color-spo2); }
-.nibp-box { border-left-color: var(--color-nibp); }
-.control-box { border-left-color: var(--color-sys); }
+/* Bordures colorées à gauche pour identifier */
+.hr-box { border-left: 4px solid var(--color-hr); }
+.spo2-box { border-left: 4px solid var(--color-spo2); }
+.nibp-box { border-left-color: var(--color-nibp); border-left-width: 4px; border-left-style: solid; }
+.control-box { border-left: 4px solid var(--color-sys); background: #000; }
 
-.label-zone { width: 60px; display: flex; flex-direction: column; }
-.label-text { font-size: 1.3rem; font-weight: 700; color: #ddd; } /* Police un peu réduite */
-.label-unit { font-size: 0.75rem; opacity: 0.6; }
-
-.value-zone { flex: 1; display: flex; justify-content: flex-end; align-items: center; font-family: var(--font-digital); }
-
-.value { 
-    font-size: 3rem; /* Police un peu réduite (était 3.5rem) */
-    font-weight: 400; 
-    text-shadow: 0 0 8px currentColor; 
-    line-height: 1; 
+/* Contenu Interne : Flex Row pour Label vs Valeur */
+.module-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
 }
 
-.nibp-group { display: flex; flex-direction: column; align-items: flex-end; }
-.nibp-main-line { display: flex; align-items: baseline; }
-.nibp-box .value { font-size: 2.4rem; } /* PNI réduite pour tenir */
-.sep { font-size: 1.8rem; margin: 0 8px; opacity: 0.4; }
-.nibp-sub { font-size: 0.9rem; color: #888; margin-top: 2px; font-family: var(--font-ui); }
+/* LABEL (Gauche) */
+.label-zone {
+    display: flex; flex-direction: column; justify-content: center;
+}
+.label-text { 
+    font-size: clamp(1.5rem, 4vw, 2.5rem); /* Taille dynamique */
+    font-weight: 700; 
+    opacity: 0.9;
+}
+.label-unit { 
+    font-size: clamp(0.8rem, 1.5vw, 1rem); 
+    opacity: 0.6; margin-top: 5px; 
+}
 
-.hr-box .value, .icon-heart { color: var(--color-hr); }
-.spo2-box .value { color: var(--color-spo2); }
-.nibp-box .value { color: var(--color-nibp); }
+/* VALEURS (Droite) */
+.value-zone {
+    display: flex; justify-content: flex-end; align-items: baseline;
+    font-family: var(--font-digital);
+}
 
-.icon-heart { font-size: 1.6rem; margin-right: 15px; animation: heartbeat 1s infinite; }
-.wave-container { flex: 1; height: 30px; margin: 0 20px; opacity: 0.2; }
+.value {
+    font-size: clamp(4rem, 10vw, 7rem); /* Très gros, mais s'adapte */
+    font-weight: 400;
+    line-height: 1;
+    text-shadow: 0 0 15px currentColor; /* Glow effet néon */
+}
+
+/* Ajustement spécifique PNI */
+.nibp-content {
+    display: flex; flex-direction: column; align-items: flex-end;
+}
+.nibp-main { display: flex; align-items: baseline; }
+.nibp-box .value { font-size: clamp(3rem, 8vw, 5.5rem); }
+.sep { font-size: clamp(2rem, 5vw, 4rem); margin: 0 10px; opacity: 0.4; }
+.nibp-sub { 
+    font-size: clamp(1rem, 2vw, 1.5rem); 
+    color: #888; font-family: var(--font-digital); margin-top: 5px; 
+}
+
+/* Couleurs spécifiques */
+.hr-box .label-text, .hr-box .value, .icon-heart { color: var(--color-hr); }
+.spo2-box .label-text, .spo2-box .value { color: var(--color-spo2); }
+.nibp-box .label-text, .nibp-box .value { color: var(--color-nibp); }
+
+/* Animation Wave & Coeur */
+.icon-heart { font-size: clamp(2rem, 4vw, 3rem); margin-right: 20px; animation: heartbeat 1s infinite; }
+.wave-container {
+    position: absolute; bottom: 10px; left: 20px; right: 20px; height: 30px; opacity: 0.15; pointer-events: none;
+}
 .fake-wave { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, currentColor 11px, transparent 12px); }
 
-/* CARTE CONTRÔLES */
-.control-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 8px; /* Gap réduit */
-    padding: 10px 20px;
+/* 4. CARTE SYSTEME (Contrôles) */
+.control-inner {
+    display: flex; flex-direction: column; justify-content: center; width: 100%; height: 100%; gap: 15px;
 }
 
-.status-bar { 
-    width: 100%;
+.system-status {
     display: flex; justify-content: space-between; align-items: center;
-    color: #888; font-family: monospace; font-size: 0.85rem;
-    height: 25px; 
+    font-family: monospace; color: #666; font-size: 1rem; padding: 0 5px;
 }
 .countdown-display { color: #e67e22; font-weight: bold; }
 
-.buttons-row { 
-    width: 100%;
-    display: flex; gap: 10px; 
-    height: 45px; /* Hauteur boutons un peu réduite */
+.buttons-row {
+    display: flex; gap: 10px; height: 50%; max-height: 60px;
 }
 .monitor-btn {
-    flex: 1; 
-    border-radius: 8px; border: none;
-    font-weight: 600; font-size: 0.85rem; text-transform: uppercase;
-    cursor: pointer; color: white;
-    transition: transform 0.1s, opacity 0.2s;
-    height: 100%;
+    flex: 1;
+    background: #151515;
+    border: 1px solid #333;
+    color: #aaa;
+    border-radius: 6px;
+    font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.2s;
 }
-.monitor-btn:active { transform: scale(0.96); }
-.btn-blue { background: #2563eb; } 
-.btn-orange { background: #d35400; } 
-.btn-red { background: #c0392b; }
-.active-mode { border: 2px solid #fff; }
+.monitor-btn:hover:not(:disabled) { border-color: #666; color: #fff; background: #222; }
+.monitor-btn:active:not(:disabled) { transform: scale(0.98); }
+.monitor-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+/* États actifs des boutons */
+.btn-blue.active-btn { background: var(--primary-btn); color: white; border-color: var(--primary-btn); box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+.btn-orange.active-mode { background: #d35400; color: white; border-color: #d35400; box-shadow: 0 0 15px rgba(211, 84, 0, 0.4); }
+.btn-red:not(:disabled) { color: #e74c3c; border-color: #e74c3c; }
+.btn-red:hover:not(:disabled) { background: #e74c3c; color: white; }
+
+/* Animation Alert */
 @keyframes text-pulse-soft {
-    0% { transform: scale(1); opacity: 0.8; color: var(--primary-btn); }
-    50% { transform: scale(1.05); opacity: 1; color: #fff; }
-    100% { transform: scale(1); opacity: 0.8; color: var(--primary-btn); }
+    0% { opacity: 0.6; color: var(--primary-btn); }
+    50% { opacity: 1; color: #fff; text-shadow: 0 0 10px var(--primary-btn); }
+    100% { opacity: 0.6; color: var(--primary-btn); }
 }
 .analyzing-alert {
-    font-size: 1.2rem !important; 
-    font-weight: 800 !important;
-    text-transform: uppercase;
-    animation: text-pulse-soft 1.5s infinite ease-in-out; 
+    font-size: 1.4rem !important; font-weight: 800; text-transform: uppercase;
+    animation: text-pulse-soft 1.5s infinite ease-in-out;
 }
-
-@keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+@keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
