@@ -93,7 +93,7 @@
         
         // Configuration Audio
         const audioPlayer = new Audio('/ta.mp3'); 
-        const alertPlayer = new Audio('/alert.mp3'); // Ajout du lecteur pour l'alerte
+        const alertPlayer = new Audio('/alert.mp3'); 
 
         let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' };
         let countdownTimer = null;
@@ -158,16 +158,15 @@
             els.status.classList.add('analyzing-alert');
             setValuesOpacity(0.5);
             
-            // MODIFICATION ICI : Délai passé de 5000 à 7000 (7 secondes)
+            // Délai de mesure (7 secondes)
             setTimeout(() => {
                 updateDisplayFromBuffer();
                 setValuesOpacity(1);
                 els.status.classList.remove('analyzing-alert');
                 
-                // AJOUT ICI : Vérification des seuils d'alerte après l'affichage
+                // Vérification des seuils d'alerte et déclenchement visuel/sonore
                 checkAlerts();
 
-                // On retire le style actif du bouton OneShot après la mesure
                 if(!isContinuous) els.btnOne.classList.remove('active-btn', 'btn-blue');
 
                 const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
@@ -176,30 +175,40 @@
             }, 7000); 
         }
 
-        // Nouvelle fonction pour gérer les alertes sonores
+        // Fonction de gestion des alertes (Sonore + Visuelle)
         function checkAlerts() {
-            // Conversion en nombres entiers pour la comparaison
-            const sys = parseInt(serverBuffer.sys);
-            const bpm = parseInt(serverBuffer.bpm);
-            const spo2 = parseInt(serverBuffer.spo2);
+            const sysVal = parseInt(serverBuffer.sys);
+            const bpmVal = parseInt(serverBuffer.bpm);
+            const spo2Val = parseInt(serverBuffer.spo2);
 
-            // Si les données ne sont pas des nombres (ex: '--'), on ne fait rien
-            if (isNaN(sys) || isNaN(bpm) || isNaN(spo2)) return;
+            // 1. Réinitialisation des alertes visuelles (on retire le rouge)
+            [els.sys, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
+
+            if (isNaN(sysVal) || isNaN(bpmVal) || isNaN(spo2Val)) return;
 
             let triggerAlert = false;
 
-            // 1. Tension inférieure à 90mmHg (Systolique)
-            if (sys < 90) triggerAlert = true;
+            // 2. Vérification des seuils et activation du clignotement ciblé
+            
+            // Tension Systolique < 90
+            if (sysVal < 90) {
+                triggerAlert = true;
+                els.sys.classList.add('alert-active');
+            }
 
-            // 2. Pulsations supérieures à 90
-            if (bpm > 90) triggerAlert = true;
+            // Pulsations > 90 ou < 50
+            if (bpmVal > 90 || bpmVal < 50) {
+                triggerAlert = true;
+                els.bpm.classList.add('alert-active');
+            }
 
-            // 3. Pulsations inférieures à 50
-            if (bpm < 50) triggerAlert = true;
+            // Saturation < 95%
+            if (spo2Val < 95) {
+                triggerAlert = true;
+                els.spo2.classList.add('alert-active');
+            }
 
-            // 4. Saturation inférieure à 95 %
-            if (spo2 < 95) triggerAlert = true;
-
+            // 3. Déclenchement du son si au moins une condition est remplie
             if (triggerAlert) {
                 alertPlayer.currentTime = 0;
                 alertPlayer.play().catch(e => console.log("Alerte audio bloquée"));
@@ -250,11 +259,16 @@
             
             els.countdown.innerText = "";
             els.status.classList.remove('analyzing-alert');
+            
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
-            // Arrêter aussi l'alerte si on clique sur STOP
+            
+            // Arrêt alerte sonore et visuelle
             alertPlayer.pause();
             alertPlayer.currentTime = 0;
+            
+            // On retire les clignotements rouges
+            [els.sys, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
         }
 
         function setValuesOpacity(op) { document.querySelectorAll('.value').forEach(el => el.style.opacity = op); }
