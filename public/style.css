@@ -265,3 +265,59 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
     animation: text-pulse-soft 1.5s infinite ease-in-out;
 }
 @keyframes heartbeat { 0% { transform: scale(1); opacity: 0.7; } 10% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 0.7; } }
+
+
+/* --- PUSH TO TALK (PILOTE) --- */
+.ptt-container {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.ptt-btn {
+    width: 100%;
+    height: 80px;
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 12px;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.1s;
+    user-select: none; /* Empêche la sélection de texte */
+    -webkit-user-select: none;
+    touch-action: manipulation; /* Améliore la réponse tactile */
+}
+
+.ptt-btn .mic-icon {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    filter: grayscale(1);
+}
+
+.ptt-btn span {
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+/* État Actif (Quand on appuie) */
+.ptt-btn:active, .ptt-btn.transmitting {
+    background: #e74c3c; /* Rouge Vif */
+    color: white;
+    border-color: #c0392b;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    transform: scale(0.98);
+}
+
+.ptt-btn.transmitting .mic-icon {
+    filter: grayscale(0);
+    animation: pulse-mic 0.5s infinite alternate;
+}
+
+@keyframes pulse-mic {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
