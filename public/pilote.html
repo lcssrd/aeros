@@ -5,6 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aeros Pilot</title>
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- VISUALISATION DES SEUILS D'ALERTE SUR LES SLIDERS --- */
+        
+        /* On épaissit un peu la barre pour bien voir les couleurs */
+        .pilot-container input[type="range"]::-webkit-slider-runnable-track {
+            height: 10px;
+            border-radius: 5px;
+        }
+        /* On recentre le bouton du slider */
+        .pilot-container input[type="range"]::-webkit-slider-thumb {
+            margin-top: -2px; 
+            border: 2px solid #000; /* Petit contour noir pour le contraste */
+        }
+
+        /* 1. FC (BPM) : 0 à 250 bpm 
+           Sécurité : 50 à 90
+           Calcul : 50/250 = 20% | 90/250 = 36% 
+        */
+        #bpm-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, 
+                #c0392b 0%, #c0392b 20%,  /* Rouge (Danger bas) */
+                #2ecc71 20%, #2ecc71 36%, /* Vert (Normal) */
+                #c0392b 36%, #c0392b 100% /* Rouge (Danger haut) */
+            ) !important;
+        }
+
+        /* 2. SpO2 : 50 à 100 % 
+           Sécurité : > 95%
+           Plage totale = 50. Seuil à 95 (donc 45 unités depuis le début)
+           Calcul : 45/50 = 90%
+        */
+        #spo2-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, 
+                #c0392b 0%, #c0392b 90%,  /* Rouge */
+                #2ecc71 90%, #2ecc71 100% /* Vert */
+            ) !important;
+        }
+
+        /* 3. Systolique : 0 à 250 mmHg
+           Sécurité : 100 à 140
+           Calcul : 100/250 = 40% | 140/250 = 56%
+        */
+        #sys-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, 
+                #c0392b 0%, #c0392b 40%, 
+                #2ecc71 40%, #2ecc71 56%, 
+                #c0392b 56%, #c0392b 100%
+            ) !important;
+        }
+
+        /* 4. Diastolique : 0 à 180 mmHg
+           Sécurité : 80 à 100
+           Calcul : 80/180 ≈ 44.4% | 100/180 ≈ 55.5%
+        */
+        #dia-slider::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, 
+                #c0392b 0%, #c0392b 44.4%, 
+                #2ecc71 44.4%, #2ecc71 55.5%, 
+                #c0392b 55.5%, #c0392b 100%
+            ) !important;
+        }
+        
+        /* Petit texte d'aide pour les seuils */
+        .range-info {
+            font-size: 0.7rem; color: #888; margin-top: 2px; text-align: right; font-style: italic;
+        }
+    </style>
 </head>
 <body class="pilote-mode">
 
@@ -44,6 +112,7 @@
                 </div>
                 <div class="slider-wrapper">
                     <input type="range" id="bpm-slider" min="0" max="250" value="80" oninput="syncNumber('bpm')">
+                    <div class="range-info">Zone sûre : 50 - 90</div>
                 </div>
             </div>
 
@@ -54,6 +123,7 @@
                 </div>
                 <div class="slider-wrapper">
                     <input type="range" id="spo2-slider" min="50" max="100" value="98" oninput="syncNumber('spo2')">
+                    <div class="range-info">Zone sûre : > 95%</div>
                 </div>
             </div>
 
@@ -64,12 +134,14 @@
                         <input type="number" id="sys" value="120" oninput="syncSlider('sys')">
                         <div class="slider-wrapper">
                             <input type="range" id="sys-slider" min="0" max="250" value="120" oninput="syncNumber('sys')">
+                            <div class="range-info">Sûre: 100-140</div>
                         </div>
                     </div>
                     <div style="flex:1">
                         <input type="number" id="dia" value="80" oninput="syncSlider('dia')">
                         <div class="slider-wrapper">
                             <input type="range" id="dia-slider" min="0" max="180" value="80" oninput="syncNumber('dia')">
+                            <div class="range-info">Sûre: 80-100</div>
                         </div>
                     </div>
                 </div>
