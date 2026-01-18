@@ -150,7 +150,6 @@
         });
 
         function performMeasurement() {
-            // Lecture Audio prise de tension
             audioPlayer.currentTime = 0;
             audioPlayer.play().catch(e => console.log("Audio bloqué par navigateur"));
 
@@ -158,13 +157,11 @@
             els.status.classList.add('analyzing-alert');
             setValuesOpacity(0.5);
             
-            // Délai de mesure (7 secondes)
             setTimeout(() => {
                 updateDisplayFromBuffer();
                 setValuesOpacity(1);
                 els.status.classList.remove('analyzing-alert');
                 
-                // Vérification des seuils d'alerte et déclenchement visuel/sonore
                 checkAlerts();
 
                 if(!isContinuous) els.btnOne.classList.remove('active-btn', 'btn-blue');
@@ -175,40 +172,47 @@
             }, 7000); 
         }
 
-        // Fonction de gestion des alertes (Sonore + Visuelle)
+        // --- GESTION DES ALERTES MISE À JOUR ---
         function checkAlerts() {
             const sysVal = parseInt(serverBuffer.sys);
+            const diaVal = parseInt(serverBuffer.dia);
             const bpmVal = parseInt(serverBuffer.bpm);
             const spo2Val = parseInt(serverBuffer.spo2);
 
-            // 1. Réinitialisation des alertes visuelles (on retire le rouge)
-            [els.sys, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
+            // 1. Reset visuel (y compris pour la diastolique maintenant)
+            [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
 
-            if (isNaN(sysVal) || isNaN(bpmVal) || isNaN(spo2Val)) return;
+            if (isNaN(sysVal) || isNaN(diaVal) || isNaN(bpmVal) || isNaN(spo2Val)) return;
 
             let triggerAlert = false;
 
-            // 2. Vérification des seuils et activation du clignotement ciblé
+            // 2. Vérification PNI (Systolique ET Diastolique liées)
+            // Seuils Systolique : Alerte si <= 100 ou >= 140
+            const sysAlert = (sysVal <= 100 || sysVal >= 140);
             
-            // Tension Systolique < 90
-            if (sysVal < 90) {
+            // Seuils Diastolique : Alerte si <= 80 ou >= 100
+            const diaAlert = (diaVal <= 80 || diaVal >= 100);
+
+            // Si l'un des deux est anormal, les DEUX clignotent
+            if (sysAlert || diaAlert) {
                 triggerAlert = true;
                 els.sys.classList.add('alert-active');
+                els.dia.classList.add('alert-active');
             }
 
-            // Pulsations > 90 ou < 50
+            // 3. Vérification FC ( > 90 ou < 50 )
             if (bpmVal > 90 || bpmVal < 50) {
                 triggerAlert = true;
                 els.bpm.classList.add('alert-active');
             }
 
-            // Saturation < 95%
+            // 4. Vérification SpO2 ( < 95% )
             if (spo2Val < 95) {
                 triggerAlert = true;
                 els.spo2.classList.add('alert-active');
             }
 
-            // 3. Déclenchement du son si au moins une condition est remplie
+            // Activation Sonore
             if (triggerAlert) {
                 alertPlayer.currentTime = 0;
                 alertPlayer.play().catch(e => console.log("Alerte audio bloquée"));
@@ -253,7 +257,6 @@
             clearInterval(countdownTimer);
             els.btnStop.disabled = true;
             
-            // Reset styles boutons
             els.btnCont.classList.remove('active-mode', 'btn-orange');
             els.btnOne.classList.remove('active-btn', 'btn-blue');
             
@@ -263,12 +266,11 @@
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
             
-            // Arrêt alerte sonore et visuelle
             alertPlayer.pause();
             alertPlayer.currentTime = 0;
             
-            // On retire les clignotements rouges
-            [els.sys, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
+            // On nettoie toutes les alertes visuelles
+            [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
         }
 
         function setValuesOpacity(op) { document.querySelectorAll('.value').forEach(el => el.style.opacity = op); }
