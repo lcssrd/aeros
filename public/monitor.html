@@ -179,19 +179,20 @@
             const bpmVal = parseInt(serverBuffer.bpm);
             const spo2Val = parseInt(serverBuffer.spo2);
 
-            // 1. Reset visuel (y compris pour la diastolique maintenant)
+            // 1. Reset visuel
             [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
 
             if (isNaN(sysVal) || isNaN(diaVal) || isNaN(bpmVal) || isNaN(spo2Val)) return;
 
             let triggerAlert = false;
 
-            // 2. Vérification PNI (Systolique ET Diastolique liées)
-            // Seuils Systolique : Alerte si <= 100 ou >= 140
+            // 2. Vérification PNI (Systolique ET Diastolique)
+            
+            // Systolique : Alerte si <= 100 ou >= 140
             const sysAlert = (sysVal <= 100 || sysVal >= 140);
             
-            // Seuils Diastolique : Alerte si <= 80 ou >= 100
-            const diaAlert = (diaVal <= 80 || diaVal >= 100);
+            // Diastolique : Alerte si <= 65 ou >= 90 (NOUVEAUX SEUILS)
+            const diaAlert = (diaVal <= 65 || diaVal >= 90);
 
             // Si l'un des deux est anormal, les DEUX clignotent
             if (sysAlert || diaAlert) {
@@ -200,13 +201,13 @@
                 els.dia.classList.add('alert-active');
             }
 
-            // 3. Vérification FC ( > 90 ou < 50 )
+            // 3. Vérification FC
             if (bpmVal > 90 || bpmVal < 50) {
                 triggerAlert = true;
                 els.bpm.classList.add('alert-active');
             }
 
-            // 4. Vérification SpO2 ( < 95% )
+            // 4. Vérification SpO2
             if (spo2Val < 95) {
                 triggerAlert = true;
                 els.spo2.classList.add('alert-active');
@@ -269,7 +270,6 @@
             alertPlayer.pause();
             alertPlayer.currentTime = 0;
             
-            // On nettoie toutes les alertes visuelles
             [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
         }
 
