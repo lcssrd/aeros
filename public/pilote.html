@@ -9,16 +9,76 @@
 <body class="pilote-mode">
 
     <div class="pilot-container">
-        <button id="btn-update" onclick="sendData()">TRANSMETTRE DONNÉES</button>
         
-        <hr style="border-color: #222; margin: 15px 0;">
-
-        <div class="ptt-container">
-            <button id="btn-ptt" class="ptt-btn">
-                <span class="mic-icon">🎤</span>
-                <span id="ptt-label">MAINTENIR POUR PARLER</span>
-            </button>
+        <div class="pilot-header">
+            <span class="brand-logo" style="font-size: 1.2rem;">AEROS</span>
+            <span>Console Pilote</span>
         </div>
+
+        <div class="server-status-box">
+            <h4>Valeurs Serveur (En attente)</h4>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">FC</span>
+                    <span id="srv-bpm" class="val-hr">--</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">SpO2</span>
+                    <span id="srv-spo2" class="val-spo2">--</span>%
+                </div>
+                <div class="status-item">
+                    <span class="status-label">TA</span>
+                    <span class="val-nibp">
+                        <span id="srv-sys">--</span>/<span id="srv-dia">--</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-grid">
+            
+            <div class="control-group hr-group">
+                <label>Fréquence Cardiaque (BPM)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="bpm" value="80" min="0" max="250" oninput="syncSlider('bpm')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="bpm-slider" min="0" max="250" value="80" oninput="syncNumber('bpm')">
+                </div>
+            </div>
+
+            <div class="control-group spo2-group">
+                <label>Saturation O2 (%)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="spo2" value="98" min="50" max="100" oninput="syncSlider('spo2')">
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="spo2-slider" min="50" max="100" value="98" oninput="syncNumber('spo2')">
+                </div>
+            </div>
+
+            <div class="control-group nibp-group">
+                <label>Pression (Sys / Dia)</label>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex:1">
+                        <input type="number" id="sys" value="120" oninput="syncSlider('sys')">
+                        <div class="slider-wrapper">
+                            <input type="range" id="sys-slider" min="0" max="250" value="120" oninput="syncNumber('sys')">
+                        </div>
+                    </div>
+                    <div style="flex:1">
+                        <input type="number" id="dia" value="80" oninput="syncSlider('dia')">
+                        <div class="slider-wrapper">
+                            <input type="range" id="dia-slider" min="0" max="180" value="80" oninput="syncNumber('dia')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <button id="btn-update" onclick="sendData()">TRANSMETTRE</button>
+        <div id="status"></div>
         
         <div class="pilot-footer">
              <a href="index.html" style="color:#444; text-decoration:none;">Quitter</a>
@@ -29,7 +89,6 @@
     <script>
         const socket = io();
         
-        // ... (Code existant socket.on updateParams et fonctions sync) ...
         socket.on('updateParams', (data) => {
             document.getElementById('srv-bpm').innerText = data.bpm;
             document.getElementById('srv-spo2').innerText = data.spo2;
@@ -37,8 +96,12 @@
             document.getElementById('srv-dia').innerText = data.dia;
         });
 
-        function syncSlider(id) { document.getElementById(id + '-slider').value = document.getElementById(id).value; }
-        function syncNumber(id) { document.getElementById(id).value = document.getElementById(id + '-slider').value; }
+        function syncSlider(id) {
+            document.getElementById(id + '-slider').value = document.getElementById(id).value;
+        }
+        function syncNumber(id) {
+            document.getElementById(id).value = document.getElementById(id + '-slider').value;
+        }
 
         function sendData() {
             const data = {
@@ -52,70 +115,11 @@
             const originalText = btn.innerText;
             btn.style.background = "#2ecc71";
             btn.innerText = "ENVOYÉ ✓";
-            setTimeout(() => { btn.style.background = ""; btn.innerText = originalText; }, 1000);
+            setTimeout(() => {
+                btn.style.background = ""; 
+                btn.innerText = originalText;
+            }, 1000);
         }
-
-        // --- LOGIQUE PUSH TO TALK (PTT) ---
-        const pttBtn = document.getElementById('btn-ptt');
-        const pttLabel = document.getElementById('ptt-label');
-        let mediaRecorder;
-        let audioChunks = [];
-
-        // 1. Demander l'accès au micro au chargement
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    // Création du recorder
-                    mediaRecorder = new MediaRecorder(stream);
-                    
-                    // Quand des données sont prêtes (tous les X ms), on envoie au serveur
-                    mediaRecorder.ondataavailable = (event) => {
-                        if (event.data.size > 0) {
-                            socket.emit('voice-data', event.data);
-                        }
-                    };
-                    
-                    console.log("Microphone prêt.");
-                })
-                .catch(err => {
-                    console.error("Erreur Micro:", err);
-                    pttLabel.innerText = "MICRO NON DÉTECTÉ";
-                    pttBtn.disabled = true;
-                    pttBtn.style.background = "#333";
-                });
-        } else {
-            pttLabel.innerText = "NON SUPPORTÉ";
-        }
-
-        // 2. Gestion des événements Souris & Touch (Mobile)
-        const startRecording = (e) => {
-            e.preventDefault(); // Empêche le clic fantôme sur mobile
-            if (mediaRecorder && mediaRecorder.state === "inactive") {
-                // On enregistre par petits paquets de 250ms pour avoir du semi-temps réel
-                mediaRecorder.start(250); 
-                pttBtn.classList.add('transmitting');
-                pttLabel.innerText = "EN LIGNE...";
-            }
-        };
-
-        const stopRecording = (e) => {
-            e.preventDefault();
-            if (mediaRecorder && mediaRecorder.state === "recording") {
-                mediaRecorder.stop();
-                pttBtn.classList.remove('transmitting');
-                pttLabel.innerText = "MAINTENIR POUR PARLER";
-            }
-        };
-
-        // Événements Souris
-        pttBtn.addEventListener('mousedown', startRecording);
-        pttBtn.addEventListener('mouseup', stopRecording);
-        pttBtn.addEventListener('mouseleave', stopRecording); // Si on sort du bouton
-
-        // Événements Tactiles (Mobile/Tablette)
-        pttBtn.addEventListener('touchstart', startRecording);
-        pttBtn.addEventListener('touchend', stopRecording);
-
     </script>
 </body>
 </html>
