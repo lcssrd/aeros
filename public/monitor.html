@@ -6,7 +6,7 @@
     <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Style pour le nouveau bouton SpO2 */
+        /* Style pour le bouton SpO2 */
         .btn-purple {
             background-color: #9b59b6;
             color: white;
@@ -96,7 +96,7 @@
                         <button id="btn-oneshot" class="monitor-btn">Tension Start</button>
                         <button id="btn-continue" class="monitor-btn">Tension Auto</button>
                         
-                        <button id="btn-spo2" class="monitor-btn btn-purple">SpO2</button>
+                        <button id="btn-spo2" class="monitor-btn btn-purple">SpO2 + Pouls</button>
                         
                         <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop All</button>
                     </div>
@@ -147,54 +147,71 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        // RECEPTION DES DONNEES
+        // RECEPTION DES DONNEES (SOCKET)
         socket.on('updateParams', (data) => { 
             serverBuffer = data; 
             
-            // Si le monitoring SpO2 est actif, on met à jour en DIRECT
+            // Si le monitoring SpO2 est actif, on met à jour SpO2 ET FC en DIRECT
             if (isSpo2Monitoring) {
+                // Mise à jour SpO2
                 els.spo2.innerText = serverBuffer.spo2;
-                els.spo2.classList.remove('value-blur'); // S'assurer qu'il est visible
-                checkAlerts(); // Vérifier les seuils
+                els.spo2.classList.remove('value-blur');
+                
+                // Mise à jour FC (Direct)
+                els.bpm.innerText = serverBuffer.bpm;
+                els.bpm.classList.remove('value-blur');
+
+                checkAlerts(); // Vérifier les seuils en temps réel
             }
         });
 
-        // --- LOGIQUE BOUTON SpO2 ---
+        // --- LOGIQUE BOUTON SpO2 + FC ---
         els.btnSpo2.addEventListener('click', () => {
             if (!isSpo2Monitoring) {
-                // ACTIVER SpO2
+                // ACTIVER SpO2 + FC
                 els.btnSpo2.innerText = "Capteur...";
                 els.btnSpo2.classList.add('active-spo2');
                 
                 // Délai de 3 secondes avant affichage
                 setTimeout(() => {
-                    // Si on n'a pas annulé entre temps
+                    // Vérif si pas annulé entre temps
                     isSpo2Monitoring = true;
                     els.btnSpo2.innerText = "SpO2 Stop";
                     
-                    // Affichage immédiat
+                    // Affichage immédiat SpO2
                     els.spo2.innerText = serverBuffer.spo2;
                     els.spo2.classList.remove('value-blur');
+
+                    // Affichage immédiat FC
+                    els.bpm.innerText = serverBuffer.bpm;
+                    els.bpm.classList.remove('value-blur');
+
                     checkAlerts();
                 }, 3000);
 
             } else {
-                // DESACTIVER SpO2
+                // DESACTIVER SpO2 + FC
                 isSpo2Monitoring = false;
-                els.btnSpo2.innerText = "SpO2";
+                els.btnSpo2.innerText = "SpO2 + Pouls";
                 els.btnSpo2.classList.remove('active-spo2');
                 
-                // Remettre en mode caché/flou
+                // Cacher SpO2
                 els.spo2.innerText = "--";
                 els.spo2.classList.add('value-blur');
                 els.spo2.classList.remove('alert-active');
+
+                // Cacher FC (Car liée au capteur doigt dans ce mode)
+                els.bpm.innerText = "--";
+                els.bpm.classList.add('value-blur');
+                els.bpm.classList.remove('alert-active');
             }
         });
 
 
-        // --- LOGIQUE BOUTONS TENSION (PNI + FC) ---
+        // --- LOGIQUE BOUTONS TENSION (PNI) ---
+        // Note: La PNI met aussi à jour la FC une fois (snapshot), mais si SpO2 est actif, le direct reprendra le dessus.
         els.btnOne.addEventListener('click', () => {
-            stopCycleTension(); // Arrête uniquement le cycle tension auto s'il y en a un
+            stopCycleTension();
             els.btnOne.classList.add('active-btn', 'btn-blue');
             els.btnStop.disabled = false;
             performMeasurement();
@@ -209,19 +226,15 @@
             startCycleCountdown(120);
         });
 
-        // Le bouton STOP général arrête tout (Tension et SpO2) ou juste la tension ?
-        // Ici je le configure pour arrêter les cycles automatiques, mais pour la SpO2 c'est le bouton SpO2 qui gère.
-        // Optionnel : Le bouton Stop peut tout couper en urgence.
         els.btnStop.addEventListener('click', () => {
             stopCycleTension();
             
-            // Si on veut aussi couper la SpO2 avec le bouton STOP général, décommentez les lignes suivantes :
-            /*
-            isSpo2Monitoring = false;
-            els.btnSpo2.innerText = "SpO2";
+            // Si on veut aussi couper la SpO2 avec le bouton STOP général (optionnel)
+            /* isSpo2Monitoring = false;
+            els.btnSpo2.innerText = "SpO2 + Pouls";
             els.btnSpo2.classList.remove('active-spo2');
-            els.spo2.innerText = "--";
-            els.spo2.classList.add('value-blur');
+            els.spo2.innerText = "--"; els.spo2.classList.add('value-blur');
+            els.bpm.innerText = "--"; els.bpm.classList.add('value-blur');
             */
 
             els.status.innerText = "Arrêté";
@@ -237,18 +250,16 @@
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
             
-            // On floute un peu les valeurs PNI/FC pendant la prise
+            // Floutage PNI pendant prise
             els.sys.style.opacity = 0.5;
             els.dia.style.opacity = 0.5;
-            els.bpm.style.opacity = 0.5;
             
             setTimeout(() => {
-                updateDisplayTensionOnly(); // Affiche Tension + FC uniquement
+                updateDisplayTensionOnly(); // Affiche Tension + FC (Snapshot)
                 
-                // Rétablit l'opacité
+                // Rétablissement opacité
                 els.sys.style.opacity = 1;
                 els.dia.style.opacity = 1;
-                els.bpm.style.opacity = 1;
 
                 els.status.classList.remove('analyzing-alert');
                 
@@ -256,7 +267,6 @@
 
                 if(!isContinuous) {
                     els.btnOne.classList.remove('active-btn', 'btn-blue');
-                    // Si pas de SpO2 active, on peut désactiver le bouton stop
                     if(!isSpo2Monitoring) els.btnStop.disabled = true; 
                 }
 
@@ -278,28 +288,20 @@
 
             let triggerAlert = false;
 
-            // Vérification PNI / FC (Seulement si affichées, c'est à dire pas '--')
+            // Vérification PNI (Seulement si affichée)
             if (els.sys.innerText !== '--') {
-                // Systolique
-                if (sysVal <= 100 || sysVal >= 140) {
-                    triggerAlert = true; els.sys.classList.add('alert-active');
-                }
-                // Diastolique
-                if (diaVal <= 65 || diaVal >= 90) {
-                    triggerAlert = true; els.dia.classList.add('alert-active');
-                }
-                // FC
-                if (bpmVal > 90 || bpmVal < 50) {
-                    triggerAlert = true; els.bpm.classList.add('alert-active');
-                }
+                if (sysVal <= 100 || sysVal >= 140) { triggerAlert = true; els.sys.classList.add('alert-active'); }
+                if (diaVal <= 65 || diaVal >= 90) { triggerAlert = true; els.dia.classList.add('alert-active'); }
             }
 
-            // Vérification SpO2 (Seulement si monitoring actif)
+            // Vérification FC (Si affichée via PNI ou SpO2)
+            if (els.bpm.innerText !== '--') {
+                if (bpmVal > 90 || bpmVal < 50) { triggerAlert = true; els.bpm.classList.add('alert-active'); }
+            }
+
+            // Vérification SpO2 (Si monitoring actif)
             if (isSpo2Monitoring && els.spo2.innerText !== '--') {
-                if (spo2Val < 95) {
-                    triggerAlert = true;
-                    els.spo2.classList.add('alert-active');
-                }
+                if (spo2Val < 95) { triggerAlert = true; els.spo2.classList.add('alert-active'); }
             }
 
             // Activation Sonore
@@ -311,13 +313,17 @@
 
         function updateDisplayTensionOnly() {
             // Unblur PNI + FC
-            [els.sys, els.dia, els.map, els.bpm].forEach(el => {
+            [els.sys, els.dia, els.map].forEach(el => {
                 el.classList.remove('value-blur');
                 el.classList.add('value-visible');
             });
 
-            // Mise à jour valeurs PNI + FC
+            // Si la SpO2 n'est PAS active, on met à jour la FC ici (Snapshot)
+            // Si elle EST active, le socket le fait déjà en direct, donc pas grave de le refaire ici une fois.
+            els.bpm.classList.remove('value-blur');
             els.bpm.innerText = serverBuffer.bpm;
+            
+            // Mise à jour PNI
             els.sys.innerText = serverBuffer.sys;
             els.dia.innerText = serverBuffer.dia;
             
@@ -325,7 +331,6 @@
                 const map = Math.round((parseInt(serverBuffer.sys) + 2 * parseInt(serverBuffer.dia)) / 3);
                 els.map.innerText = map;
             }
-            // NOTE : On NE touche PAS à la SpO2 ici.
         }
 
         function startCycleCountdown(durationSeconds) {
@@ -365,7 +370,8 @@
             alertPlayer.pause();
             alertPlayer.currentTime = 0;
             
-            [els.sys, els.dia, els.bpm].forEach(el => el.classList.remove('alert-active'));
+            // On enlève les alertes PNI uniquement, on laisse SpO2 gérer les siennes si actif
+            [els.sys, els.dia].forEach(el => el.classList.remove('alert-active'));
         }
 
     </script>

@@ -13,7 +13,7 @@
     --color-sys: #444; 
     
     --font-ui: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --font-digital: 'Courier New', Courier, monospace;
+    --font-digital: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,7 +35,11 @@ body {
     text-transform: uppercase;
     letter-spacing: 3px;
     background: linear-gradient(90deg, #fff, #666);
+    
+    /* CORRECTION ICI : Ajout de la propriété standard */
     -webkit-background-clip: text;
+    background-clip: text; 
+    
     -webkit-text-fill-color: transparent;
 }
 
@@ -73,9 +77,29 @@ body.pilote-mode { padding: 20px; overflow-y: auto; align-items: center; justify
 .control-group.hr-group { border-color: var(--color-hr); } .control-group.spo2-group { border-color: var(--color-spo2); } .control-group.nibp-group { border-color: var(--color-nibp); }
 .control-group label { font-size: 0.75rem; color: #666; margin-bottom: 5px; font-weight: 700; display: block; }
 input[type="number"] { width: 100%; background: transparent; border: none; color: #fff; font-family: var(--font-digital); font-size: 1.4rem; border-bottom: 1px solid #333; }
-input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; margin-top: 8px; cursor: pointer; }
+
+/* CORRECTION PRECEDENTE : appearance */
+input[type="range"] { 
+    -webkit-appearance: none; 
+    appearance: none; 
+    width: 100%; 
+    background: transparent; 
+    margin-top: 8px; 
+    cursor: pointer; 
+}
+
 input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #333; border-radius: 2px; }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
+
+input[type="range"]::-webkit-slider-thumb { 
+    -webkit-appearance: none; 
+    appearance: none; 
+    height: 14px; 
+    width: 14px; 
+    border-radius: 50%; 
+    background: #fff; 
+    margin-top: -5px; 
+}
+
 .hr-group input[type=range]::-webkit-slider-thumb { background: var(--color-hr); } 
 .spo2-group input[type=range]::-webkit-slider-thumb { background: var(--color-spo2); } 
 .nibp-group input[type=range]::-webkit-slider-thumb { background: var(--color-nibp); }
@@ -86,7 +110,6 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
    --- MONITEUR : DESIGN PROFESSIONNEL --- 
    ========================================= */
 
-/* Le conteneur prend tout l'écran, pas de cadre visible */
 .monitor-frame {
     flex: 1;
     display: flex;
@@ -188,11 +211,13 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
 .value-zone {
     display: flex; justify-content: flex-end; align-items: baseline;
     font-family: var(--font-digital);
+    /* Tabular nums pour éviter que les chiffres bougent horizontalement */
+    font-variant-numeric: tabular-nums;
 }
 
 .value {
     font-size: clamp(4rem, 10vw, 7rem); /* Très gros, mais s'adapte */
-    font-weight: 400;
+    font-weight: 600; 
     line-height: 1;
     text-shadow: 0 0 15px currentColor; /* Glow effet néon */
 }
@@ -270,7 +295,7 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
     100% { transform: scale(1); opacity: 0.7; } 
 }
 
-/* --- NOUVEAU : GESTION DES ALERTES (Clignotement Rouge) --- */
+/* Gestion Alertes */
 @keyframes blinkRed {
     0% { background-color: rgba(255, 0, 0, 0.8); color: white; box-shadow: 0 0 10px red; }
     50% { background-color: rgba(255, 0, 0, 0.2); color: white; box-shadow: 0 0 5px red; }
@@ -281,6 +306,5 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
     animation: blinkRed 1s infinite;
     border-radius: 5px;
     padding: 0 5px;
-    /* On force la visibilité au cas où */
     opacity: 1 !important; 
 }
