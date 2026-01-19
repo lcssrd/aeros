@@ -11,11 +11,11 @@
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-main: #e0e0e0;
-            --text-muted: #aaaaaa;
-            --accent-green: #2ecc71;
-            --accent-red: #e74c3c;
-            --accent-blue: #3498db;
-            --accent-orange: #e67e22;
+            
+            /* Code couleur médical (MATCH MONITOR) */
+            --col-hr: #2ecc71;   /* VERT */
+            --col-spo2: #00e5ff; /* CYAN */
+            --col-nibp: #ffffff; /* BLANC */
         }
 
         body.pilote-mode {
@@ -69,9 +69,11 @@
 
         .status-item .label { font-size: 0.7rem; color: #7f8c8d; display: block; }
         .status-item .val { font-size: 1.2rem; font-weight: bold; }
-        .val-bpm { color: var(--accent-red); }
-        .val-spo2 { color: var(--accent-blue); }
-        .val-nibp { color: var(--accent-orange); }
+        
+        /* COULEURS DES VALEURS LIVE */
+        .val-bpm { color: var(--col-hr); }
+        .val-spo2 { color: var(--col-spo2); }
+        .val-nibp { color: var(--col-nibp); }
 
         /* --- CARDS DE CONTROLE --- */
         .control-card {
@@ -81,6 +83,7 @@
             margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: transform 0.2s;
+            border-left: 4px solid transparent; /* Défini en inline mais on prépare */
         }
         
         .card-header {
@@ -120,7 +123,7 @@
         
         input[type="range"] {
             -webkit-appearance: none;
-            appearance: none; /* CORRECTION */
+            appearance: none;
             width: 100%;
             background: transparent;
             margin: 10px 0;
@@ -144,7 +147,7 @@
             border: 2px solid #000;
             cursor: pointer;
             -webkit-appearance: none;
-            appearance: none; /* CORRECTION */
+            appearance: none;
             margin-top: -7px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
@@ -157,7 +160,7 @@
             font-style: italic;
         }
 
-        /* Gradients Seuils */
+        /* GRADIENTS DE SECURITÉ (Restent Rouge/Vert pour indiquer le danger) */
         #bpm-slider::-webkit-slider-runnable-track {
             background: linear-gradient(to right, #c0392b 0%, #c0392b 20%, #2ecc71 20%, #2ecc71 36%, #c0392b 36%, #c0392b 100%);
         }
@@ -236,9 +239,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--accent-red);">
+        <div class="control-card" style="border-left: 4px solid var(--col-hr);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--accent-red);">
+                <div class="card-title" style="color: var(--col-hr);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     Fréquence Cardiaque
                 </div>
@@ -250,9 +253,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--accent-blue);">
+        <div class="control-card" style="border-left: 4px solid var(--col-spo2);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--accent-blue);">
+                <div class="card-title" style="color: var(--col-spo2);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/></svg>
                     Saturation (SpO2)
                 </div>
@@ -264,9 +267,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--accent-orange);">
+        <div class="control-card" style="border-left: 4px solid var(--col-nibp);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--accent-orange);">
+                <div class="card-title" style="color: var(--col-nibp);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                     Pression Artérielle
                 </div>
