@@ -13,6 +13,7 @@
     --color-sys: #444; 
     
     --font-ui: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    /* Police unifiée pour les chiffres (identique à l'UI) */
     --font-digital: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -36,7 +37,7 @@ body {
     letter-spacing: 3px;
     background: linear-gradient(90deg, #fff, #666);
     
-    /* CORRECTION ICI : Ajout de la propriété standard */
+    /* Propriété standard + préfixe */
     -webkit-background-clip: text;
     background-clip: text; 
     
@@ -78,7 +79,7 @@ body.pilote-mode { padding: 20px; overflow-y: auto; align-items: center; justify
 .control-group label { font-size: 0.75rem; color: #666; margin-bottom: 5px; font-weight: 700; display: block; }
 input[type="number"] { width: 100%; background: transparent; border: none; color: #fff; font-family: var(--font-digital); font-size: 1.4rem; border-bottom: 1px solid #333; }
 
-/* CORRECTION PRECEDENTE : appearance */
+/* Sliders standardisés */
 input[type="range"] { 
     -webkit-appearance: none; 
     appearance: none; 
@@ -240,11 +241,39 @@ button#btn-update { width: 100%; padding: 15px; background: var(--primary-btn); 
 .nibp-box .label-text, .nibp-box .value { color: var(--color-nibp); }
 
 /* Animation Wave & Coeur */
-.icon-heart { font-size: clamp(2rem, 4vw, 3rem); margin-right: 20px; animation: heartbeat 1s infinite; }
-.wave-container {
-    position: absolute; bottom: 10px; left: 20px; right: 20px; height: 30px; opacity: 0.15; pointer-events: none;
+.icon-heart { 
+    font-size: clamp(2rem, 4vw, 3rem); 
+    margin-right: 20px; 
+    /* Pas d'animation par défaut */
 }
-.fake-wave { width: 100%; height: 100%; background: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, currentColor 11px, transparent 12px); }
+
+/* Classe active pour faire battre le cœur */
+.heart-active {
+    animation: heartbeat 1s infinite;
+}
+
+/* Courbe (Wave) */
+.wave-container {
+    position: absolute; 
+    bottom: 10px; 
+    left: 20px; 
+    right: 20px; 
+    height: 30px; 
+    opacity: 0; /* Invisible par défaut */
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+/* Classe pour rendre la courbe visible */
+.wave-visible {
+    opacity: 0.25; 
+}
+
+.fake-wave { 
+    width: 100%; 
+    height: 100%; 
+    background: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, currentColor 11px, transparent 12px); 
+}
 
 /* 4. CARTE SYSTEME (Contrôles) */
 .control-inner {
