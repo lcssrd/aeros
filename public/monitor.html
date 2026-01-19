@@ -6,7 +6,7 @@
     <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Style pour le bouton SpO2 */
+        /* Style spécifique pour le bouton SpO2 */
         .btn-purple {
             background-color: #9b59b6;
             color: white;
@@ -115,15 +115,13 @@
         let countdownTimer = null;
         let isContinuous = false;
         let isSpo2Monitoring = false; 
-        
-        // État pour savoir si une analyse PNI est en cours (pour le coeur)
         let isNibpAnalyzing = false;
 
         const els = {
             bpm: document.getElementById('bpm-disp'),
-            heartIcon: document.getElementById('heart-icon'), // L'icône coeur
+            heartIcon: document.getElementById('heart-icon'),
             spo2: document.getElementById('spo2-disp'),
-            spo2Wave: document.getElementById('spo2-wave'), // La courbe
+            spo2Wave: document.getElementById('spo2-wave'),
             sys: document.getElementById('sys-disp'),
             dia: document.getElementById('dia-disp'),
             map: document.getElementById('map-disp'),
@@ -160,9 +158,9 @@
             }
         });
 
-        // --- GESTION ANIMATIONS (COEUR & WAVE) ---
+        // --- GESTION ANIMATIONS ---
         function updateAnimations() {
-            // Le coeur bat si SpO2 est actif OU si PNI est en cours d'analyse
+            // Le coeur bat si SpO2 est actif OU si PNI en cours
             if (isSpo2Monitoring || isNibpAnalyzing) {
                 els.heartIcon.classList.add('heart-active');
             } else {
@@ -177,7 +175,7 @@
             }
         }
 
-        // --- LOGIQUE BOUTON SpO2 ---
+        // --- LOGIQUE SpO2 ---
         els.btnSpo2.addEventListener('click', () => {
             if (!isSpo2Monitoring) {
                 // ACTIVER
@@ -194,7 +192,7 @@
                     els.bpm.innerText = serverBuffer.bpm;
                     els.bpm.classList.remove('value-blur');
 
-                    updateAnimations(); // Lance coeur + wave
+                    updateAnimations(); 
                     checkAlerts();
                 }, 3000);
 
@@ -213,20 +211,18 @@
             els.spo2.classList.add('value-blur');
             els.spo2.classList.remove('alert-active');
 
-            // Si PNI n'est pas en cours, on cache aussi la FC
             if (!isNibpAnalyzing) {
                 els.bpm.innerText = "--";
                 els.bpm.classList.add('value-blur');
                 els.bpm.classList.remove('alert-active');
             }
 
-            updateAnimations(); // Arrête wave (+ coeur si pas de PNI)
+            updateAnimations();
             
-            // Si pas de PNI en cours, on peut désactiver le bouton stop global
             if(!isContinuous && !isNibpAnalyzing) els.btnStop.disabled = true;
         }
 
-        // --- LOGIQUE TENSION (PNI) ---
+        // --- LOGIQUE TENSION ---
         els.btnOne.addEventListener('click', () => {
             stopCycleTension();
             els.btnOne.classList.add('active-btn', 'btn-blue');
@@ -245,7 +241,7 @@
 
         els.btnStop.addEventListener('click', () => {
             stopCycleTension();
-            stopSpo2(); // Arrête aussi la SpO2
+            stopSpo2(); 
 
             els.status.innerText = "Arrêté";
             els.status.classList.remove('analyzing-alert');
@@ -260,14 +256,14 @@
             els.status.classList.add('analyzing-alert');
             
             isNibpAnalyzing = true;
-            updateAnimations(); // Lance le coeur (car analyse en cours)
+            updateAnimations();
 
             els.sys.style.opacity = 0.5;
             els.dia.style.opacity = 0.5;
             
             setTimeout(() => {
-                isNibpAnalyzing = false; // Fin de l'analyse
-                updateAnimations(); // Arrête le coeur (sauf si SpO2 actif)
+                isNibpAnalyzing = false;
+                updateAnimations();
 
                 updateDisplayTensionOnly();
                 
@@ -275,7 +271,6 @@
                 els.dia.style.opacity = 1;
 
                 els.status.classList.remove('analyzing-alert');
-                
                 checkAlerts();
 
                 if(!isContinuous) {
@@ -323,8 +318,6 @@
                 el.classList.add('value-visible');
             });
 
-            // Mise à jour snapshot FC si SpO2 n'est pas actif
-            // (Si SpO2 est actif, la FC est déjà gérée en direct par le socket)
             if (!isSpo2Monitoring) {
                 els.bpm.classList.remove('value-blur');
                 els.bpm.innerText = serverBuffer.bpm;
@@ -362,7 +355,7 @@
 
         function stopCycleTension() {
             isContinuous = false;
-            isNibpAnalyzing = false; // Force l'arrêt de l'état "analyse"
+            isNibpAnalyzing = false;
             clearInterval(countdownTimer);
             
             els.btnCont.classList.remove('active-mode', 'btn-orange');
@@ -373,11 +366,10 @@
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
             
-            updateAnimations(); // Met à jour le coeur (arrête si SpO2 off)
+            updateAnimations(); 
             
             [els.sys, els.dia].forEach(el => el.classList.remove('alert-active'));
         }
-
     </script>
 </body>
 </html>
