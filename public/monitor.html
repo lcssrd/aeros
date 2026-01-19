@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style pour le nouveau bouton SpO2 */
+        .btn-purple {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .btn-purple:hover {
+            background-color: #8e44ad;
+        }
+        .active-spo2 {
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px #9b59b6;
+        }
+    </style>
 </head>
 <body class="monitor-mode">
 
     <audio id="audio-cuff" src="/ta.mp3" preload="auto"></audio>
+    <audio id="alert-player" src="/alert.mp3" preload="auto"></audio>
 
     <div class="monitor-frame">
         
@@ -78,9 +93,12 @@
                     </div>
                     
                     <div class="buttons-row">
-                        <button id="btn-oneshot" class="monitor-btn">Start</button>
-                        <button id="btn-continue" class="monitor-btn">Auto</button>
-                        <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop</button>
+                        <button id="btn-oneshot" class="monitor-btn">Tension Start</button>
+                        <button id="btn-continue" class="monitor-btn">Tension Auto</button>
+                        
+                        <button id="btn-spo2" class="monitor-btn btn-purple">SpO2</button>
+                        
+                        <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop All</button>
                     </div>
                 </div>
             </div>
@@ -92,12 +110,15 @@
         const socket = io();
         
         // Configuration Audio
-        const audioPlayer = new Audio('/ta.mp3'); 
-        const alertPlayer = new Audio('/alert.mp3'); 
+        const audioPlayer = document.getElementById('audio-cuff'); 
+        const alertPlayer = document.getElementById('alert-player'); 
 
         let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' };
         let countdownTimer = null;
         let isContinuous = false;
+        
+        // État du monitoring SpO2
+        let isSpo2Monitoring = false; 
 
         const els = {
             bpm: document.getElementById('bpm-disp'),
@@ -110,6 +131,7 @@
             btnOne: document.getElementById('btn-oneshot'),
             btnCont: document.getElementById('btn-continue'),
             btnStop: document.getElementById('btn-stop'),
+            btnSpo2: document.getElementById('btn-spo2'),
             btnFs: document.getElementById('btn-fs')
         };
 
@@ -125,17 +147,61 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
         }, 1000);
 
-        socket.on('updateParams', (data) => { serverBuffer = data; });
+        // RECEPTION DES DONNEES
+        socket.on('updateParams', (data) => { 
+            serverBuffer = data; 
+            
+            // Si le monitoring SpO2 est actif, on met à jour en DIRECT
+            if (isSpo2Monitoring) {
+                els.spo2.innerText = serverBuffer.spo2;
+                els.spo2.classList.remove('value-blur'); // S'assurer qu'il est visible
+                checkAlerts(); // Vérifier les seuils
+            }
+        });
 
-        // LOGIQUE BOUTONS
+        // --- LOGIQUE BOUTON SpO2 ---
+        els.btnSpo2.addEventListener('click', () => {
+            if (!isSpo2Monitoring) {
+                // ACTIVER SpO2
+                els.btnSpo2.innerText = "Capteur...";
+                els.btnSpo2.classList.add('active-spo2');
+                
+                // Délai de 3 secondes avant affichage
+                setTimeout(() => {
+                    // Si on n'a pas annulé entre temps
+                    isSpo2Monitoring = true;
+                    els.btnSpo2.innerText = "SpO2 Stop";
+                    
+                    // Affichage immédiat
+                    els.spo2.innerText = serverBuffer.spo2;
+                    els.spo2.classList.remove('value-blur');
+                    checkAlerts();
+                }, 3000);
+
+            } else {
+                // DESACTIVER SpO2
+                isSpo2Monitoring = false;
+                els.btnSpo2.innerText = "SpO2";
+                els.btnSpo2.classList.remove('active-spo2');
+                
+                // Remettre en mode caché/flou
+                els.spo2.innerText = "--";
+                els.spo2.classList.add('value-blur');
+                els.spo2.classList.remove('alert-active');
+            }
+        });
+
+
+        // --- LOGIQUE BOUTONS TENSION (PNI + FC) ---
         els.btnOne.addEventListener('click', () => {
-            stopAllCycles();
+            stopCycleTension(); // Arrête uniquement le cycle tension auto s'il y en a un
             els.btnOne.classList.add('active-btn', 'btn-blue');
+            els.btnStop.disabled = false;
             performMeasurement();
         });
 
         els.btnCont.addEventListener('click', () => {
-            stopAllCycles();
+            stopCycleTension();
             isContinuous = true;
             els.btnStop.disabled = false;
             els.btnCont.classList.add('active-mode', 'btn-orange');
@@ -143,28 +209,56 @@
             startCycleCountdown(120);
         });
 
+        // Le bouton STOP général arrête tout (Tension et SpO2) ou juste la tension ?
+        // Ici je le configure pour arrêter les cycles automatiques, mais pour la SpO2 c'est le bouton SpO2 qui gère.
+        // Optionnel : Le bouton Stop peut tout couper en urgence.
         els.btnStop.addEventListener('click', () => {
-            stopAllCycles();
+            stopCycleTension();
+            
+            // Si on veut aussi couper la SpO2 avec le bouton STOP général, décommentez les lignes suivantes :
+            /*
+            isSpo2Monitoring = false;
+            els.btnSpo2.innerText = "SpO2";
+            els.btnSpo2.classList.remove('active-spo2');
+            els.spo2.innerText = "--";
+            els.spo2.classList.add('value-blur');
+            */
+
             els.status.innerText = "Arrêté";
             els.status.classList.remove('analyzing-alert');
+            els.btnStop.disabled = true;
         });
 
         function performMeasurement() {
+            // Lecture son brassard
             audioPlayer.currentTime = 0;
             audioPlayer.play().catch(e => console.log("Audio bloqué par navigateur"));
 
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
-            setValuesOpacity(0.5);
+            
+            // On floute un peu les valeurs PNI/FC pendant la prise
+            els.sys.style.opacity = 0.5;
+            els.dia.style.opacity = 0.5;
+            els.bpm.style.opacity = 0.5;
             
             setTimeout(() => {
-                updateDisplayFromBuffer();
-                setValuesOpacity(1);
+                updateDisplayTensionOnly(); // Affiche Tension + FC uniquement
+                
+                // Rétablit l'opacité
+                els.sys.style.opacity = 1;
+                els.dia.style.opacity = 1;
+                els.bpm.style.opacity = 1;
+
                 els.status.classList.remove('analyzing-alert');
                 
                 checkAlerts();
 
-                if(!isContinuous) els.btnOne.classList.remove('active-btn', 'btn-blue');
+                if(!isContinuous) {
+                    els.btnOne.classList.remove('active-btn', 'btn-blue');
+                    // Si pas de SpO2 active, on peut désactiver le bouton stop
+                    if(!isSpo2Monitoring) els.btnStop.disabled = true; 
+                }
 
                 const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                 if(isContinuous) { els.status.innerText = `Dernière : ${time}`; } 
@@ -172,7 +266,7 @@
             }, 7000); 
         }
 
-        // --- GESTION DES ALERTES MISE À JOUR ---
+        // --- GESTION DES ALERTES ---
         function checkAlerts() {
             const sysVal = parseInt(serverBuffer.sys);
             const diaVal = parseInt(serverBuffer.dia);
@@ -182,35 +276,30 @@
             // 1. Reset visuel
             [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
 
-            if (isNaN(sysVal) || isNaN(diaVal) || isNaN(bpmVal) || isNaN(spo2Val)) return;
-
             let triggerAlert = false;
 
-            // 2. Vérification PNI (Systolique ET Diastolique)
-            
-            // Systolique : Alerte si <= 100 ou >= 140
-            const sysAlert = (sysVal <= 100 || sysVal >= 140);
-            
-            // Diastolique : Alerte si <= 65 ou >= 90 (NOUVEAUX SEUILS)
-            const diaAlert = (diaVal <= 65 || diaVal >= 90);
-
-            // Si l'un des deux est anormal, les DEUX clignotent
-            if (sysAlert || diaAlert) {
-                triggerAlert = true;
-                els.sys.classList.add('alert-active');
-                els.dia.classList.add('alert-active');
+            // Vérification PNI / FC (Seulement si affichées, c'est à dire pas '--')
+            if (els.sys.innerText !== '--') {
+                // Systolique
+                if (sysVal <= 100 || sysVal >= 140) {
+                    triggerAlert = true; els.sys.classList.add('alert-active');
+                }
+                // Diastolique
+                if (diaVal <= 65 || diaVal >= 90) {
+                    triggerAlert = true; els.dia.classList.add('alert-active');
+                }
+                // FC
+                if (bpmVal > 90 || bpmVal < 50) {
+                    triggerAlert = true; els.bpm.classList.add('alert-active');
+                }
             }
 
-            // 3. Vérification FC
-            if (bpmVal > 90 || bpmVal < 50) {
-                triggerAlert = true;
-                els.bpm.classList.add('alert-active');
-            }
-
-            // 4. Vérification SpO2
-            if (spo2Val < 95) {
-                triggerAlert = true;
-                els.spo2.classList.add('alert-active');
+            // Vérification SpO2 (Seulement si monitoring actif)
+            if (isSpo2Monitoring && els.spo2.innerText !== '--') {
+                if (spo2Val < 95) {
+                    triggerAlert = true;
+                    els.spo2.classList.add('alert-active');
+                }
             }
 
             // Activation Sonore
@@ -220,16 +309,23 @@
             }
         }
 
-        function updateDisplayFromBuffer() {
-            unblurAll();
+        function updateDisplayTensionOnly() {
+            // Unblur PNI + FC
+            [els.sys, els.dia, els.map, els.bpm].forEach(el => {
+                el.classList.remove('value-blur');
+                el.classList.add('value-visible');
+            });
+
+            // Mise à jour valeurs PNI + FC
             els.bpm.innerText = serverBuffer.bpm;
-            els.spo2.innerText = serverBuffer.spo2;
             els.sys.innerText = serverBuffer.sys;
             els.dia.innerText = serverBuffer.dia;
+            
             if(serverBuffer.sys !== '--' && serverBuffer.dia !== '--') {
                 const map = Math.round((parseInt(serverBuffer.sys) + 2 * parseInt(serverBuffer.dia)) / 3);
                 els.map.innerText = map;
             }
+            // NOTE : On NE touche PAS à la SpO2 ici.
         }
 
         function startCycleCountdown(durationSeconds) {
@@ -253,10 +349,9 @@
             }, 1000);
         }
 
-        function stopAllCycles() {
+        function stopCycleTension() {
             isContinuous = false;
             clearInterval(countdownTimer);
-            els.btnStop.disabled = true;
             
             els.btnCont.classList.remove('active-mode', 'btn-orange');
             els.btnOne.classList.remove('active-btn', 'btn-blue');
@@ -270,11 +365,9 @@
             alertPlayer.pause();
             alertPlayer.currentTime = 0;
             
-            [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
+            [els.sys, els.dia, els.bpm].forEach(el => el.classList.remove('alert-active'));
         }
 
-        function setValuesOpacity(op) { document.querySelectorAll('.value').forEach(el => el.style.opacity = op); }
-        function unblurAll() { document.querySelectorAll('.value-blur').forEach(el => { el.classList.remove('value-blur'); el.classList.add('value-visible'); }); }
     </script>
 </body>
 </html>
