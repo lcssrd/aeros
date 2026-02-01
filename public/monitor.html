@@ -498,24 +498,27 @@
                 border-radius: 8px;
             }
 
-            /* Grid: 710px total (750 - 40 top bar) */
+            /* Grid - reduced gaps, cards pushed to top */
+            /* Total height: 790px (750px grid + 40px top bar) */
             .monitor-grid {
-                gap: 2px;
-                padding: 2px;
-                padding-bottom: calc(2px + env(safe-area-inset-bottom, 6px));
-                height: calc(100dvh - 40px);
-                max-height: 710px;
+                gap: 1px;
+                padding: 1px;
+                padding-bottom: calc(8px + env(safe-area-inset-bottom, 6px));
+                height: auto;
+                min-height: 750px;
+                max-height: calc(100dvh - 40px);
+                justify-content: flex-start;
+                align-content: flex-start;
+                overflow: visible;
             }
 
-            /* Each param box: ~155px (FC, SPO2, PNI) = 465px for 3 boxes */
-            /* Control box: ~240px */
-            /* Total: 465 + 240 + gaps = ~710px */
-
+            /* Param boxes with comfortable height */
             .param-box {
-                padding: 6px 10px;
+                padding: 8px 12px;
                 border-radius: 8px;
-                min-height: 140px;
-                max-height: 160px;
+                min-height: 150px;
+                max-height: 175px;
+                overflow: visible;
             }
 
             /* Values - compact but readable */
@@ -551,27 +554,48 @@
                 margin-top: 1px;
             }
 
-            /* Wave visible but compact */
+            /* Wave visible and properly contained */
             .wave-container {
-                height: 22px;
-                bottom: 4px;
-                left: 10px;
-                right: 10px;
+                position: absolute;
+                height: 24px;
+                bottom: 6px;
+                left: 8px;
+                right: 8px;
                 display: block !important;
+                opacity: 1 !important;
+                overflow: hidden;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.2);
+                padding: 2px;
             }
 
-            /* Control box with big buttons */
+            .spo2-box {
+                position: relative;
+                padding-bottom: 35px;
+            }
+
+            .pleth-wave {
+                height: 100%;
+            }
+
+            .pleth-wave svg {
+                height: 100%;
+            }
+
+            /* Control box with big buttons - ensure not cut off */
             .control-box {
-                padding: 8px 10px;
-                padding-bottom: calc(12px + env(safe-area-inset-bottom, 8px));
-                min-height: 130px;
+                padding: 10px 12px;
+                padding-bottom: calc(16px + env(safe-area-inset-bottom, 10px));
+                min-height: 140px;
                 flex-shrink: 0;
+                overflow: visible;
             }
 
             .control-inner {
                 gap: 8px;
                 justify-content: space-between;
                 height: 100%;
+                overflow: visible;
             }
 
             .system-status {
@@ -584,6 +608,8 @@
             .buttons-row {
                 gap: 6px;
                 flex-wrap: wrap;
+                overflow: visible;
+                margin-bottom: 4px;
             }
 
             /* Big touchable buttons - 48px height */
