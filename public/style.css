@@ -463,6 +463,12 @@ input[type="range"]::-webkit-slider-thumb {
     color: #666;
     font-size: 1rem;
     padding: 0 5px;
+    min-height: 40px;
+    height: 40px;
+}
+
+#status-msg {
+    min-width: 100px;
 }
 
 .countdown-display {
@@ -551,9 +557,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .analyzing-alert {
-    font-size: 1.4rem !important;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
+    color: var(--primary-btn);
     animation: text-pulse-soft 1.5s infinite ease-in-out;
 }
 

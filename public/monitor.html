@@ -3,41 +3,526 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
-        /* Style spécifique pour le bouton SpO2 */
+        /* Override fonts for monitor */
+        :root {
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-digital: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+            /* Enhanced color palette */
+            --color-hr: #00ff88;
+            --color-spo2: #00d4ff;
+            --color-nibp: #ffffff;
+            --glow-hr: rgba(0, 255, 136, 0.4);
+            --glow-spo2: rgba(0, 212, 255, 0.4);
+            --glow-nibp: rgba(255, 255, 255, 0.2);
+
+            /* Backgrounds */
+            --bg-card: linear-gradient(145deg, #0d0d0d 0%, #050505 100%);
+            --bg-card-hover: linear-gradient(145deg, #121212 0%, #080808 100%);
+            --border-glow: rgba(255, 255, 255, 0.05);
+        }
+
+        body.monitor-mode {
+            background: radial-gradient(ellipse at top, #0a0a0f 0%, #000 50%);
+            font-family: var(--font-ui);
+        }
+
+        /* Enhanced monitor frame */
+        .monitor-frame {
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.9) 0%, rgba(0, 0, 0, 1) 100%);
+        }
+
+        /* Enhanced top bar */
+        .top-bar {
+            background: linear-gradient(180deg, #0a0a0f 0%, #050508 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            height: 60px;
+            padding: 0 24px;
+        }
+
+        .monitor-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff 0%, #888 50%, #fff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+        }
+
+        .patient-info {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+            padding: 6px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .top-right {
+            gap: 20px;
+        }
+
+        #clock {
+            font-family: var(--font-digital);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .fs-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .fs-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Enhanced grid */
+        .monitor-grid {
+            gap: 4px;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced param boxes */
+        .param-box {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+            /* Remove scanlines, add subtle noise */
+            background-image: none;
+        }
+
+        .param-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        /* Colored accent bars - left side glow */
+        .hr-box {
+            border-left: 3px solid var(--color-hr);
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                -8px 0 30px -10px var(--glow-hr);
+        }
+
+        .spo2-box {
+            border-left: 3px solid var(--color-spo2);
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                -8px 0 30px -10px var(--glow-spo2);
+        }
+
+        .nibp-box {
+            border-left: 3px solid var(--color-nibp);
+            box-shadow:
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                -8px 0 30px -10px var(--glow-nibp);
+        }
+
+        .control-box {
+            border-left: 3px solid #444;
+            background: linear-gradient(145deg, #080808 0%, #020202 100%);
+        }
+
+        /* Enhanced labels */
+        .label-text {
+            font-family: var(--font-ui);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .label-unit {
+            font-family: var(--font-ui);
+            font-weight: 400;
+            opacity: 0.4;
+            font-size: 0.8rem;
+        }
+
+        /* Enhanced values */
+        .value {
+            font-family: var(--font-digital);
+            font-weight: 600;
+            letter-spacing: -2px;
+        }
+
+        .value-blur {
+            opacity: 0.15;
+            filter: blur(2px);
+        }
+
+        .value-visible {
+            opacity: 1;
+            filter: none;
+        }
+
+        /* Heart icon */
+        .icon-heart {
+            font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            margin-right: 15px;
+            opacity: 0.8;
+            transition: all 0.1s ease;
+        }
+
+        .heart-active {
+            opacity: 1;
+            filter: drop-shadow(0 0 10px var(--color-hr));
+        }
+
+        /* Enhanced wave container */
+        .wave-container {
+            bottom: 15px;
+            left: 24px;
+            right: 24px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px;
+        }
+
+        .pleth-wave path {
+            stroke-width: 2.5;
+        }
+
+        /* Control box enhancements */
+        .control-inner {
+            gap: 20px;
+        }
+
+        .system-status {
+            font-family: var(--font-digital);
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #status-msg {
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .countdown-display {
+            color: #ff9500;
+            font-weight: 600;
+        }
+
+        /* Enhanced buttons */
+        .buttons-row {
+            gap: 12px;
+            height: auto;
+            max-height: none;
+            flex-wrap: wrap;
+        }
+
+        .monitor-btn {
+            flex: 1 1 calc(33.33% - 12px);
+            min-width: 100px;
+            padding: 14px 12px;
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .monitor-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            background: linear-gradient(145deg, #222 0%, #111 100%);
+        }
+
+        .monitor-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .monitor-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Button states */
+        .btn-blue.active-btn {
+            background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-orange.active-mode {
+            background: linear-gradient(145deg, #f97316 0%, #ea580c 100%);
+            border-color: #fb923c;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+        }
+
         .btn-purple {
-            background-color: #9b59b6;
-            color: white;
-        }
-
-        .btn-purple:hover {
-            background-color: #8e44ad;
-        }
-
-        .active-spo2 {
-            border: 2px solid #fff;
-            box-shadow: 0 0 10px #9b59b6;
-        }
-
-        /* Bouton Mute */
-        .btn-mute {
-            color: #888 !important;
-            border-color: #444 !important;
-        }
-
-        .btn-mute:hover {
-            border-color: #666 !important;
+            background: linear-gradient(145deg, #a855f7 0%, #9333ea 100%) !important;
+            border-color: #c084fc !important;
             color: #fff !important;
         }
 
+        .btn-purple:hover:not(:disabled) {
+            background: linear-gradient(145deg, #c084fc 0%, #a855f7 100%) !important;
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
+        }
+
+        .active-spo2 {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.6) !important;
+            border-color: #fff !important;
+        }
+
+        .btn-red:not(:disabled) {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.5);
+        }
+
+        .btn-red:hover:not(:disabled) {
+            background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border-color: #f87171;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Mute button */
+        .btn-mute {
+            background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+            color: rgba(255, 255, 255, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            flex: 0 0 auto;
+            min-width: 50px;
+            max-width: 60px;
+            font-size: 1.2rem;
+        }
+
+        .btn-mute:hover:not(.muted) {
+            color: rgba(255, 255, 255, 0.8) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+
         .btn-mute.muted {
-            background: #2a1a1a !important;
-            border-color: #e74c3c !important;
-            color: #e74c3c !important;
-            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(145deg, #3a1a1a 0%, #2a0a0a 100%) !important;
+            border-color: rgba(248, 113, 113, 0.5) !important;
+            color: #f87171 !important;
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.3);
+        }
+
+        /* Alert animation enhancement */
+        @keyframes blinkRed {
+
+            0%,
+            100% {
+                background-color: rgba(239, 68, 68, 0.9);
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            }
+
+            50% {
+                background-color: rgba(239, 68, 68, 0.3);
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        .alert-active {
+            animation: blinkRed 0.8s infinite;
+            border-radius: 8px;
+            padding: 2px 8px;
+        }
+
+        .analyzing-alert {
+            font-weight: 700;
+            color: #60a5fa;
+            animation: analyzeGlow 1.2s ease-in-out infinite;
+            letter-spacing: 1px;
+        }
+
+        @keyframes analyzeGlow {
+
+            0%,
+            100% {
+                opacity: 0.7;
+                text-shadow: 0 0 8px rgba(96, 165, 250, 0.4);
+                color: #60a5fa;
+            }
+
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 15px rgba(96, 165, 250, 0.7), 0 0 25px rgba(96, 165, 250, 0.4);
+                color: #93c5fd;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 16px;
+                height: 55px;
+            }
+
+            .monitor-logo {
+                font-size: 1.1rem;
+                letter-spacing: 3px;
+            }
+
+            .patient-info {
+                display: none;
+            }
+
+            .param-box {
+                padding: 16px 20px;
+                border-radius: 12px;
+            }
+
+            .monitor-btn {
+                flex: 1 1 calc(50% - 8px);
+                min-width: 80px;
+                padding: 12px 10px;
+                font-size: 0.65rem;
+            }
+
+            .control-inner {
+                gap: 15px;
+            }
+
+            .buttons-row {
+                gap: 8px;
+            }
+
+            .system-status {
+                font-size: 0.8rem;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .monitor-grid {
+                gap: 3px;
+                padding: 3px;
+            }
+
+            .param-box {
+                padding: 12px 16px;
+            }
+
+            .value {
+                font-size: clamp(3rem, 15vw, 5rem);
+            }
+
+            .nibp-box .value {
+                font-size: clamp(2.5rem, 12vw, 4rem);
+            }
+
+            .monitor-btn {
+                padding: 10px 8px;
+                font-size: 0.6rem;
+                border-radius: 10px;
+            }
+
+            .wave-container {
+                height: 35px;
+                bottom: 10px;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .top-bar {
+                height: 45px;
+            }
+
+            .param-box {
+                padding: 10px 20px;
+            }
+
+            .value {
+                font-size: clamp(2.5rem, 8vh, 4rem);
+            }
+
+            .buttons-row {
+                max-height: 45px;
+            }
+
+            .monitor-btn {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Large screens */
+        @media (min-width: 1400px) {
+            .param-box {
+                padding: 30px 40px;
+                border-radius: 20px;
+            }
+
+            .wave-container {
+                height: 60px;
+            }
+
+            .monitor-btn {
+                padding: 18px 20px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
