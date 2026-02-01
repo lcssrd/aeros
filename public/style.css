@@ -29,11 +29,10 @@
 body {
     background-color: var(--bg-color);
     font-family: var(--font-ui);
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 100vh;
     width: 100vw;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
+    /* Zéro scroll */
     display: flex;
     flex-direction: column;
     color: white;
@@ -464,12 +463,6 @@ input[type="range"]::-webkit-slider-thumb {
     color: #666;
     font-size: 1rem;
     padding: 0 5px;
-    min-height: 40px;
-    height: 40px;
-}
-
-#status-msg {
-    min-width: 100px;
 }
 
 .countdown-display {
@@ -558,9 +551,9 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .analyzing-alert {
-    font-weight: 700;
+    font-size: 1.4rem !important;
+    font-weight: 800;
     text-transform: uppercase;
-    color: var(--primary-btn);
     animation: text-pulse-soft 1.5s infinite ease-in-out;
 }
 
