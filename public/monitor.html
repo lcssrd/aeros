@@ -214,6 +214,35 @@
             oscillator.stop(audioContext.currentTime + 0.08); // 80ms de bip
         }
 
+        // Fonction pour jouer un son quand le résultat de tension s'affiche
+        function playNibpBeep() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Premier bip (plus grave que SpO2)
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.frequency.value = 440; // La3, ton plus grave
+            osc1.type = 'sine';
+            gain1.gain.value = 0.12;
+            osc1.start(audioContext.currentTime);
+            osc1.stop(audioContext.currentTime + 0.1);
+
+            // Deuxième bip (légèrement plus aigu pour distinction)
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 523; // Do4
+            osc2.type = 'sine';
+            gain2.gain.value = 0.12;
+            osc2.start(audioContext.currentTime + 0.15);
+            osc2.stop(audioContext.currentTime + 0.25);
+        }
+
         // Démarrer le bip synchronisé avec le pouls
         function startBeeping() {
             updateBeepInterval();
@@ -427,10 +456,9 @@
         });
 
         function performMeasurement() {
-            if (!isMuted) {
-                audioPlayer.currentTime = 0;
-                audioPlayer.play().catch(e => console.log("Audio bloqué"));
-            }
+            // Son de la prise de tension - toujours joué (non affecté par mute)
+            audioPlayer.currentTime = 0;
+            audioPlayer.play().catch(e => console.log("Audio bloqué"));
 
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
@@ -444,6 +472,9 @@
             setTimeout(() => {
                 isNibpAnalyzing = false;
                 updateAnimations();
+
+                // Jouer le son de résultat de tension
+                playNibpBeep();
 
                 updateDisplayTensionOnly();
 
