@@ -473,11 +473,14 @@
             }
         }
 
-        /* Optimized for phones like Pixel 5 (393x851) and iPhone (390x844) */
+        /* Optimized for phones - max 750px height layout */
         @media (max-width: 480px) {
+
+            /* Top bar: 40px */
             .top-bar {
-                height: 44px;
+                height: 40px;
                 padding: 0 12px;
+                flex-shrink: 0;
             }
 
             .monitor-logo {
@@ -486,169 +489,156 @@
             }
 
             #clock {
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }
 
             .fs-btn {
-                width: 32px;
-                height: 32px;
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
             }
 
+            /* Grid: 710px total (750 - 40 top bar) */
             .monitor-grid {
                 gap: 2px;
                 padding: 2px;
-                /* Use calc to fit exactly in viewport */
-                height: calc(100dvh - 44px);
-                max-height: calc(100dvh - 44px);
+                padding-bottom: calc(2px + env(safe-area-inset-bottom, 6px));
+                height: calc(100dvh - 40px);
+                max-height: 710px;
             }
+
+            /* Each param box: ~155px (FC, SPO2, PNI) = 465px for 3 boxes */
+            /* Control box: ~240px */
+            /* Total: 465 + 240 + gaps = ~710px */
 
             .param-box {
-                padding: 8px 12px;
-                border-radius: 10px;
+                padding: 6px 10px;
+                border-radius: 8px;
+                min-height: 140px;
+                max-height: 160px;
             }
 
-            /* Compact values using vh for dynamic sizing */
+            /* Values - compact but readable */
             .value {
-                font-size: clamp(2rem, 10vh, 3.5rem);
+                font-size: clamp(2.2rem, 8vw, 3rem);
             }
 
             .nibp-box .value {
-                font-size: clamp(1.6rem, 8vh, 2.8rem);
+                font-size: clamp(1.8rem, 6vw, 2.4rem);
             }
 
             .label-text {
-                font-size: clamp(1rem, 2.5vh, 1.5rem);
+                font-size: 1.1rem;
             }
 
             .label-unit {
-                font-size: 0.65rem;
-                margin-top: 2px;
+                font-size: 0.6rem;
+                margin-top: 1px;
             }
 
             .icon-heart {
-                font-size: clamp(1.2rem, 3vh, 1.8rem);
-                margin-right: 8px;
+                font-size: 1.4rem;
+                margin-right: 6px;
             }
 
             .sep {
-                margin: 0 5px;
-                font-size: clamp(1rem, 4vh, 1.5rem);
+                margin: 0 4px;
+                font-size: 1.2rem;
             }
 
             .nibp-sub {
-                font-size: 0.75rem;
-                margin-top: 2px;
+                font-size: 0.7rem;
+                margin-top: 1px;
             }
 
-            /* Hide wave on small screens to save space */
+            /* Wave visible but compact */
             .wave-container {
-                display: none;
+                height: 22px;
+                bottom: 4px;
+                left: 10px;
+                right: 10px;
+                display: block !important;
             }
 
+            /* Control box with big buttons */
             .control-box {
-                padding: 10px 12px;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom, 8px));
+                padding: 8px 10px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 8px));
+                min-height: 130px;
+                flex-shrink: 0;
             }
 
             .control-inner {
                 gap: 8px;
-                justify-content: center;
+                justify-content: space-between;
+                height: 100%;
             }
 
             .system-status {
                 font-size: 0.75rem;
-                padding: 6px 10px;
-                min-height: 30px;
-                height: 30px;
+                padding: 5px 10px;
+                min-height: 28px;
+                height: 28px;
             }
 
             .buttons-row {
                 gap: 6px;
-                margin-bottom: 4px;
+                flex-wrap: wrap;
             }
 
+            /* Big touchable buttons - 48px height */
             .monitor-btn {
                 flex: 1 1 calc(33% - 5px);
-                min-height: 46px;
-                max-height: 50px;
-                padding: 10px 6px;
-                font-size: 0.65rem;
-                border-radius: 8px;
+                min-height: 48px;
+                height: 48px;
+                padding: 8px 6px;
+                font-size: 0.6rem;
+                border-radius: 10px;
+                font-weight: 700;
             }
 
             .btn-mute {
-                flex: 0 0 46px;
-                min-width: 46px;
-                max-width: 46px;
-                min-height: 46px;
-                max-height: 50px;
-                font-size: 1.1rem;
-            }
-
-            /* Reduce FC, SPO2, PNI box heights to give more space to control box */
-            .hr-box,
-            .spo2-box,
-            .nibp-box {
-                max-height: 20vh;
-            }
-
-            .control-box {
-                min-height: 22vh;
-                flex-shrink: 0;
+                flex: 0 0 48px;
+                min-width: 48px;
+                max-width: 48px;
+                min-height: 48px;
+                height: 48px;
+                font-size: 1.2rem;
             }
         }
 
-        /* Extra small phones or with browser chrome visible */
-        @media (max-width: 380px),
-        (max-height: 700px) {
-            .top-bar {
-                height: 40px;
-            }
-
-            .monitor-grid {
-                height: calc(100dvh - 40px);
-                max-height: calc(100dvh - 40px);
-            }
-
+        /* Very small screens - still keep wave but more compact */
+        @media (max-width: 380px) {
             .param-box {
-                padding: 6px 10px;
+                min-height: 120px;
+                max-height: 140px;
+                padding: 5px 8px;
             }
 
             .value {
-                font-size: clamp(1.8rem, 9vh, 3rem);
+                font-size: clamp(1.8rem, 7vw, 2.5rem);
             }
 
             .nibp-box .value {
-                font-size: clamp(1.4rem, 7vh, 2.5rem);
+                font-size: clamp(1.5rem, 5.5vw, 2rem);
             }
 
             .wave-container {
-                display: none;
-            }
-
-            .control-inner {
-                gap: 4px;
-            }
-
-            .system-status {
-                min-height: 28px;
-                height: 28px;
-                padding: 4px 8px;
-                font-size: 0.7rem;
+                height: 18px;
             }
 
             .monitor-btn {
-                min-height: 40px;
-                max-height: 44px;
-                padding: 6px 4px;
+                min-height: 44px;
+                height: 44px;
                 font-size: 0.55rem;
             }
 
             .btn-mute {
-                flex: 0 0 40px;
-                min-width: 40px;
-                max-width: 40px;
-                min-height: 40px;
+                flex: 0 0 44px;
+                min-width: 44px;
+                max-width: 44px;
+                min-height: 44px;
+                height: 44px;
             }
         }
 
