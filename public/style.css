@@ -29,10 +29,11 @@
 body {
     background-color: var(--bg-color);
     font-family: var(--font-ui);
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
     width: 100vw;
-    overflow: hidden;
-    /* Zéro scroll */
+    overflow-x: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     color: white;
