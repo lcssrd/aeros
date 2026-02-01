@@ -540,50 +540,61 @@
                 margin-top: 2px;
             }
 
-            /* Hide wave on very small screens to save space */
+            /* Hide wave on small screens to save space */
             .wave-container {
-                height: 20px;
-                bottom: 4px;
-                left: 12px;
-                right: 12px;
+                display: none;
             }
 
             .control-box {
-                padding: 8px 10px;
+                padding: 10px 12px;
+                padding-bottom: calc(10px + env(safe-area-inset-bottom, 8px));
             }
 
             .control-inner {
-                gap: 6px;
+                gap: 8px;
                 justify-content: center;
             }
 
             .system-status {
                 font-size: 0.75rem;
                 padding: 6px 10px;
-                min-height: 32px;
-                height: 32px;
+                min-height: 30px;
+                height: 30px;
             }
 
             .buttons-row {
                 gap: 6px;
+                margin-bottom: 4px;
             }
 
             .monitor-btn {
                 flex: 1 1 calc(33% - 5px);
-                min-height: 44px;
-                max-height: 48px;
-                padding: 8px 6px;
-                font-size: 0.6rem;
+                min-height: 46px;
+                max-height: 50px;
+                padding: 10px 6px;
+                font-size: 0.65rem;
                 border-radius: 8px;
             }
 
             .btn-mute {
-                flex: 0 0 44px;
-                min-width: 44px;
-                max-width: 44px;
-                min-height: 44px;
-                max-height: 48px;
-                font-size: 1rem;
+                flex: 0 0 46px;
+                min-width: 46px;
+                max-width: 46px;
+                min-height: 46px;
+                max-height: 50px;
+                font-size: 1.1rem;
+            }
+
+            /* Reduce FC, SPO2, PNI box heights to give more space to control box */
+            .hr-box,
+            .spo2-box,
+            .nibp-box {
+                max-height: 20vh;
+            }
+
+            .control-box {
+                min-height: 22vh;
+                flex-shrink: 0;
             }
         }
 
