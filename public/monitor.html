@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,22 +12,43 @@
             background-color: #9b59b6;
             color: white;
         }
+
         .btn-purple:hover {
             background-color: #8e44ad;
         }
+
         .active-spo2 {
             border: 2px solid #fff;
             box-shadow: 0 0 10px #9b59b6;
         }
+
+        /* Bouton Mute */
+        .btn-mute {
+            color: #888 !important;
+            border-color: #444 !important;
+        }
+
+        .btn-mute:hover {
+            border-color: #666 !important;
+            color: #fff !important;
+        }
+
+        .btn-mute.muted {
+            background: #2a1a1a !important;
+            border-color: #e74c3c !important;
+            color: #e74c3c !important;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+        }
     </style>
 </head>
+
 <body class="monitor-mode">
 
     <audio id="audio-cuff" src="/ta.mp3" preload="auto"></audio>
     <audio id="alert-player" src="/alert.mp3" preload="auto"></audio>
 
     <div class="monitor-frame">
-        
+
         <div class="top-bar">
             <div class="monitor-logo brand-logo">AEROS</div>
             <div class="patient-info">ADULTE - STANDARD</div>
@@ -37,7 +59,7 @@
         </div>
 
         <div class="monitor-grid">
-            
+
             <div class="param-box hr-box">
                 <div class="module-content">
                     <div class="label-zone">
@@ -49,7 +71,9 @@
                         <span id="bpm-disp" class="value value-blur">--</span>
                     </div>
                 </div>
-                <div class="wave-container"><div class="fake-wave"></div></div>
+                <div class="wave-container">
+                    <div class="fake-wave"></div>
+                </div>
             </div>
 
             <div class="param-box spo2-box">
@@ -62,7 +86,46 @@
                         <span id="spo2-disp" class="value value-blur">--</span>
                     </div>
                 </div>
-                <div id="spo2-wave" class="wave-container"><div class="fake-wave"></div></div>
+                <div id="spo2-wave" class="wave-container">
+                    <div class="pleth-wave">
+                        <!-- Courbe pléthysmographique réaliste avec encoche dicrote -->
+                        <svg viewBox="0 0 300 50" preserveAspectRatio="none">
+                            <path d="M0,45 L10,45 
+                                     L12,44 L14,40 L16,30 L18,18 L20,8 L22,4 L24,3 L26,5 L28,10
+                                     L30,14 L31,16 L32,15 L33,17 L35,22
+                                     L40,32 L50,40 L60,44 L75,45
+                                     L85,45 
+                                     L87,44 L89,40 L91,30 L93,18 L95,8 L97,4 L99,3 L101,5 L103,10
+                                     L105,14 L106,16 L107,15 L108,17 L110,22
+                                     L115,32 L125,40 L135,44 L150,45
+                                     L160,45 
+                                     L162,44 L164,40 L166,30 L168,18 L170,8 L172,4 L174,3 L176,5 L178,10
+                                     L180,14 L181,16 L182,15 L183,17 L185,22
+                                     L190,32 L200,40 L210,44 L225,45
+                                     L235,45 
+                                     L237,44 L239,40 L241,30 L243,18 L245,8 L247,4 L249,3 L251,5 L253,10
+                                     L255,14 L256,16 L257,15 L258,17 L260,22
+                                     L265,32 L275,40 L285,44 L300,45"></path>
+                        </svg><svg viewBox="0 0 300 50" preserveAspectRatio="none">
+                            <path d="M0,45 L10,45 
+                                     L12,44 L14,40 L16,30 L18,18 L20,8 L22,4 L24,3 L26,5 L28,10
+                                     L30,14 L31,16 L32,15 L33,17 L35,22
+                                     L40,32 L50,40 L60,44 L75,45
+                                     L85,45 
+                                     L87,44 L89,40 L91,30 L93,18 L95,8 L97,4 L99,3 L101,5 L103,10
+                                     L105,14 L106,16 L107,15 L108,17 L110,22
+                                     L115,32 L125,40 L135,44 L150,45
+                                     L160,45 
+                                     L162,44 L164,40 L166,30 L168,18 L170,8 L172,4 L174,3 L176,5 L178,10
+                                     L180,14 L181,16 L182,15 L183,17 L185,22
+                                     L190,32 L200,40 L210,44 L225,45
+                                     L235,45 
+                                     L237,44 L239,40 L241,30 L243,18 L245,8 L247,4 L249,3 L251,5 L253,10
+                                     L255,14 L256,16 L257,15 L258,17 L260,22
+                                     L265,32 L275,40 L285,44 L300,45"></path>
+                        </svg>
+                    </div>
+                </div>
             </div>
 
             <div class="param-box nibp-box">
@@ -71,7 +134,7 @@
                         <span class="label-text">PNI</span>
                         <span class="label-unit">mmHg</span>
                     </div>
-                    
+
                     <div class="nibp-content">
                         <div class="nibp-main">
                             <span id="sys-disp" class="value value-blur">--</span>
@@ -91,31 +154,128 @@
                         <span id="status-msg">Prêt</span>
                         <span id="countdown" class="countdown-display"></span>
                     </div>
-                    
+
                     <div class="buttons-row">
                         <button id="btn-oneshot" class="monitor-btn">Tension Start</button>
                         <button id="btn-continue" class="monitor-btn">Tension Auto</button>
                         <button id="btn-spo2" class="monitor-btn btn-purple">SpO2 + Pouls</button>
                         <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop All</button>
+                        <button id="btn-mute" class="monitor-btn btn-mute" title="Couper le son">🔊</button>
                     </div>
                 </div>
             </div>
 
-        </div> </div>
+        </div>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        
+
         // Audio
-        const audioPlayer = document.getElementById('audio-cuff'); 
-        const alertPlayer = document.getElementById('alert-player'); 
+        const audioPlayer = document.getElementById('audio-cuff');
+        const alertPlayer = document.getElementById('alert-player');
+
+        // Web Audio API pour le bip du saturomètre
+        let audioContext = null;
+        let beepInterval = null;
+        let isMuted = false; // État global du mode silencieux
 
         let serverBuffer = { bpm: '--', spo2: '--', sys: '--', dia: '--' };
         let countdownTimer = null;
         let isContinuous = false;
-        let isSpo2Monitoring = false; 
+        let isSpo2Monitoring = false;
         let isNibpAnalyzing = false;
+        let bpmVariationInterval = null; // Intervalle pour variation réaliste du pouls
+
+        // Fonction pour jouer un bip doux
+        function playBeep() {
+            if (isMuted) return; // Ne pas jouer si muté
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Fréquence du bip (ton doux, comme un saturomètre)
+            oscillator.frequency.value = 880; // La4, ton aigu mais doux
+            oscillator.type = 'sine'; // Onde sinusoïdale pour un son doux
+
+            // Volume très faible pour un bip discret
+            gainNode.gain.value = 0.08;
+
+            // Durée du bip
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.08); // 80ms de bip
+        }
+
+        // Fonction pour jouer un double bip grave (pour la tension)
+        function playBeepNIBP() {
+            if (isMuted) return;
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            // Premier bip
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.frequency.value = 523; // Do5, plus grave que SpO2
+            osc1.type = 'sine';
+            gain1.gain.value = 0.1;
+            osc1.start(audioContext.currentTime);
+            osc1.stop(audioContext.currentTime + 0.1);
+
+            // Deuxième bip (légèrement décalé)
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 659; // Mi5
+            osc2.type = 'sine';
+            gain2.gain.value = 0.1;
+            osc2.start(audioContext.currentTime + 0.15);
+            osc2.stop(audioContext.currentTime + 0.25);
+        }
+
+        // Démarrer le bip synchronisé avec le pouls
+        function startBeeping() {
+            updateBeepInterval();
+        }
+
+        // Mettre à jour l'intervalle de bip selon le BPM
+        function updateBeepInterval() {
+            if (beepInterval) {
+                clearInterval(beepInterval);
+            }
+
+            if (isSpo2Monitoring && serverBuffer.bpm !== '--') {
+                const bpm = parseInt(serverBuffer.bpm) || 80;
+                const intervalMs = 60000 / bpm; // Millisecondes entre chaque battement
+
+                playBeep(); // Premier bip immédiat
+                beepInterval = setInterval(() => {
+                    if (isSpo2Monitoring) {
+                        playBeep();
+                    }
+                }, intervalMs);
+            }
+        }
+
+        // Arrêter le bip
+        function stopBeeping() {
+            if (beepInterval) {
+                clearInterval(beepInterval);
+                beepInterval = null;
+            }
+        }
 
         const els = {
             bpm: document.getElementById('bpm-disp'),
@@ -131,30 +291,45 @@
             btnCont: document.getElementById('btn-continue'),
             btnStop: document.getElementById('btn-stop'),
             btnSpo2: document.getElementById('btn-spo2'),
-            btnFs: document.getElementById('btn-fs')
+            btnFs: document.getElementById('btn-fs'),
+            btnMute: document.getElementById('btn-mute')
         };
 
         // Fullscreen
         els.btnFs.addEventListener('click', () => {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>{});
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e => { });
             else if (document.exitFullscreen) document.exitFullscreen();
+        });
+
+        // Bouton Mute
+        els.btnMute.addEventListener('click', () => {
+            isMuted = !isMuted;
+            if (isMuted) {
+                els.btnMute.classList.add('muted');
+                els.btnMute.innerText = '🔇';
+                els.btnMute.title = 'Activer le son';
+            } else {
+                els.btnMute.classList.remove('muted');
+                els.btnMute.innerText = '🔊';
+                els.btnMute.title = 'Couper le son';
+            }
         });
 
         // Horloge
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
         }, 1000);
 
         // RECEPTION SOCKET
-        socket.on('updateParams', (data) => { 
-            serverBuffer = data; 
+        socket.on('updateParams', (data) => {
+            serverBuffer = data;
             if (isSpo2Monitoring) {
                 els.spo2.innerText = serverBuffer.spo2;
                 els.spo2.classList.remove('value-blur');
                 els.bpm.innerText = serverBuffer.bpm;
                 els.bpm.classList.remove('value-blur');
-                checkAlerts(); 
+                checkAlerts();
             }
         });
 
@@ -175,6 +350,28 @@
             }
         }
 
+        // --- VARIATION REALISTE DU POULS ---
+        function startBpmVariation() {
+            // Variation de ±1 BPM toutes les 5 secondes pour simuler la variabilité cardiaque
+            bpmVariationInterval = setInterval(() => {
+                if (isSpo2Monitoring && serverBuffer.bpm !== '--') {
+                    const baseBpm = parseInt(serverBuffer.bpm);
+                    // Variation aléatoire de -1, 0, ou +1
+                    const variation = Math.floor(Math.random() * 3) - 1;
+                    const displayedBpm = baseBpm + variation;
+                    els.bpm.innerText = displayedBpm;
+                    checkAlerts();
+                }
+            }, 5000);
+        }
+
+        function stopBpmVariation() {
+            if (bpmVariationInterval) {
+                clearInterval(bpmVariationInterval);
+                bpmVariationInterval = null;
+            }
+        }
+
         // --- LOGIQUE SpO2 ---
         els.btnSpo2.addEventListener('click', () => {
             if (!isSpo2Monitoring) {
@@ -182,18 +379,24 @@
                 els.btnSpo2.innerText = "Capteur...";
                 els.btnSpo2.classList.add('active-spo2');
                 els.btnStop.disabled = false;
-                
+
                 setTimeout(() => {
                     isSpo2Monitoring = true;
                     els.btnSpo2.innerText = "SpO2 Stop";
-                    
+
                     els.spo2.innerText = serverBuffer.spo2;
                     els.spo2.classList.remove('value-blur');
                     els.bpm.innerText = serverBuffer.bpm;
                     els.bpm.classList.remove('value-blur');
 
-                    updateAnimations(); 
+                    updateAnimations();
                     checkAlerts();
+
+                    // Démarrer la variation réaliste du pouls (±1 toutes les 5 secondes)
+                    startBpmVariation();
+
+                    // Démarrer le bip synchronisé avec le pouls
+                    startBeeping();
                 }, 3000);
 
             } else {
@@ -206,7 +409,13 @@
             isSpo2Monitoring = false;
             els.btnSpo2.innerText = "SpO2 + Pouls";
             els.btnSpo2.classList.remove('active-spo2');
-            
+
+            // Arrêter la variation du pouls
+            stopBpmVariation();
+
+            // Arrêter le bip
+            stopBeeping();
+
             els.spo2.innerText = "--";
             els.spo2.classList.add('value-blur');
             els.spo2.classList.remove('alert-active');
@@ -218,8 +427,8 @@
             }
 
             updateAnimations();
-            
-            if(!isContinuous && !isNibpAnalyzing) els.btnStop.disabled = true;
+
+            if (!isContinuous && !isNibpAnalyzing) els.btnStop.disabled = true;
         }
 
         // --- LOGIQUE TENSION ---
@@ -241,7 +450,7 @@
 
         els.btnStop.addEventListener('click', () => {
             stopCycleTension();
-            stopSpo2(); 
+            stopSpo2();
 
             els.status.innerText = "Arrêté";
             els.status.classList.remove('analyzing-alert');
@@ -249,39 +458,43 @@
         });
 
         function performMeasurement() {
+            // Son du brassard (toujours actif, non affecté par mute)
             audioPlayer.currentTime = 0;
             audioPlayer.play().catch(e => console.log("Audio bloqué"));
 
             els.status.innerText = "ANALYSE...";
             els.status.classList.add('analyzing-alert');
-            
+
             isNibpAnalyzing = true;
             updateAnimations();
 
             els.sys.style.opacity = 0.5;
             els.dia.style.opacity = 0.5;
-            
+
             setTimeout(() => {
                 isNibpAnalyzing = false;
                 updateAnimations();
 
                 updateDisplayTensionOnly();
-                
+
+                // Bip de confirmation de la mesure (double bip grave)
+                playBeepNIBP();
+
                 els.sys.style.opacity = 1;
                 els.dia.style.opacity = 1;
 
                 els.status.classList.remove('analyzing-alert');
                 checkAlerts();
 
-                if(!isContinuous) {
+                if (!isContinuous) {
                     els.btnOne.classList.remove('active-btn', 'btn-blue');
-                    if(!isSpo2Monitoring) els.btnStop.disabled = true; 
+                    if (!isSpo2Monitoring) els.btnStop.disabled = true;
                 }
 
-                const time = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-                if(isContinuous) { els.status.innerText = `Dernière : ${time}`; } 
+                const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (isContinuous) { els.status.innerText = `Dernière : ${time}`; }
                 else { els.status.innerText = `Mesure : ${time}`; }
-            }, 7000); 
+            }, 7000);
         }
 
         // --- ALERTES ---
@@ -306,9 +519,9 @@
                 if (spo2Val < 95) { triggerAlert = true; els.spo2.classList.add('alert-active'); }
             }
 
-            if (triggerAlert) {
+            if (triggerAlert && !isMuted) {
                 alertPlayer.currentTime = 0;
-                alertPlayer.play().catch(e => {});
+                alertPlayer.play().catch(e => { });
             }
         }
 
@@ -322,11 +535,11 @@
                 els.bpm.classList.remove('value-blur');
                 els.bpm.innerText = serverBuffer.bpm;
             }
-            
+
             els.sys.innerText = serverBuffer.sys;
             els.dia.innerText = serverBuffer.dia;
-            
-            if(serverBuffer.sys !== '--' && serverBuffer.dia !== '--') {
+
+            if (serverBuffer.sys !== '--' && serverBuffer.dia !== '--') {
                 const map = Math.round((parseInt(serverBuffer.sys) + 2 * parseInt(serverBuffer.dia)) / 3);
                 els.map.innerText = map;
             }
@@ -357,19 +570,20 @@
             isContinuous = false;
             isNibpAnalyzing = false;
             clearInterval(countdownTimer);
-            
+
             els.btnCont.classList.remove('active-mode', 'btn-orange');
             els.btnOne.classList.remove('active-btn', 'btn-blue');
             els.countdown.innerText = "";
             els.status.classList.remove('analyzing-alert');
-            
+
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
-            
-            updateAnimations(); 
-            
+
+            updateAnimations();
+
             [els.sys, els.dia].forEach(el => el.classList.remove('alert-active'));
         }
     </script>
 </body>
+
 </html>
