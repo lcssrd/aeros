@@ -7,37 +7,75 @@
     <title>Aeros Monitor</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Style spécifique pour le bouton SpO2 */
+        /* Style spécifique pour le bouton SpO2 - Inactif: noir avec liseré cyan */
         .btn-purple {
-            background-color: #9b59b6;
-            color: white;
+            background: rgba(20, 20, 30, 0.9) !important;
+            color: #00d4ff !important;
+            border: 2px solid #00d4ff !important;
+            font-weight: 700 !important;
         }
 
         .btn-purple:hover {
-            background-color: #8e44ad;
+            background: rgba(0, 212, 255, 0.15) !important;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3) !important;
         }
 
-        .active-spo2 {
-            border: 2px solid #fff;
-            box-shadow: 0 0 10px #9b59b6;
+        /* SpO2 actif: couleur pleine cyan */
+        .btn-purple.active-spo2 {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%) !important;
+            color: #000 !important;
+            border: 2px solid #00d4ff !important;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.6) !important;
+        }
+
+        /* Boutons Tension - Inactif: noir avec liseré blanc */
+        .btn-tension {
+            background: rgba(20, 20, 30, 0.9) !important;
+            color: #ffffff !important;
+            border: 2px solid #ffffff !important;
+            font-weight: 700 !important;
+        }
+
+        .btn-tension:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2) !important;
+        }
+
+        /* Tension actif (oneshot): couleur pleine blanche */
+        .btn-tension.active-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%) !important;
+            color: #000 !important;
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Tension Auto actif: couleur pleine orange */
+        .btn-tension.active-mode {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #000 !important;
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.6) !important;
         }
 
         /* Bouton Mute */
         .btn-mute {
-            color: #888 !important;
-            border-color: #444 !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            min-width: 52px !important;
+            padding: 0 !important;
         }
 
         .btn-mute:hover {
-            border-color: #666 !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
             color: #fff !important;
+            background: rgba(255, 255, 255, 0.08) !important;
         }
 
         .btn-mute.muted {
-            background: #2a1a1a !important;
-            border-color: #e74c3c !important;
-            color: #e74c3c !important;
-            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.2) 100%) !important;
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
         }
     </style>
 </head>
@@ -150,14 +188,9 @@
 
             <div class="param-box control-box">
                 <div class="control-inner">
-                    <div class="system-status">
-                        <span id="status-msg">Prêt</span>
-                        <span id="countdown" class="countdown-display"></span>
-                    </div>
-
                     <div class="buttons-row">
-                        <button id="btn-oneshot" class="monitor-btn">Tension Start</button>
-                        <button id="btn-continue" class="monitor-btn">Tension Auto</button>
+                        <button id="btn-oneshot" class="monitor-btn btn-tension">Tension Start</button>
+                        <button id="btn-continue" class="monitor-btn btn-tension">Tension Auto</button>
                         <button id="btn-spo2" class="monitor-btn btn-purple">SpO2 + Pouls</button>
                         <button id="btn-stop" class="monitor-btn btn-red" disabled>Stop All</button>
                         <button id="btn-mute" class="monitor-btn btn-mute" title="Couper le son">🔊</button>
@@ -449,9 +482,6 @@
         els.btnStop.addEventListener('click', () => {
             stopCycleTension();
             stopSpo2();
-
-            els.status.innerText = "Arrêté";
-            els.status.classList.remove('analyzing-alert');
             els.btnStop.disabled = true;
         });
 
@@ -460,8 +490,7 @@
             audioPlayer.currentTime = 0;
             audioPlayer.play().catch(e => console.log("Audio bloqué"));
 
-            els.status.innerText = "ANALYSE...";
-            els.status.classList.add('analyzing-alert');
+
 
             isNibpAnalyzing = true;
             updateAnimations();
@@ -481,7 +510,7 @@
                 els.sys.style.opacity = 1;
                 els.dia.style.opacity = 1;
 
-                els.status.classList.remove('analyzing-alert');
+
                 checkAlerts();
 
                 if (!isContinuous) {
@@ -490,8 +519,7 @@
                 }
 
                 const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                if (isContinuous) { els.status.innerText = `Dernière : ${time}`; }
-                else { els.status.innerText = `Mesure : ${time}`; }
+
             }, 7000);
         }
 
@@ -545,15 +573,8 @@
 
         function startCycleCountdown(durationSeconds) {
             let timeLeft = durationSeconds;
-            const updateTimerDisplay = () => {
-                const m = Math.floor(timeLeft / 60);
-                const s = timeLeft % 60;
-                els.countdown.innerText = `Prochaine : ${m}:${s.toString().padStart(2, '0')}`;
-            };
-            updateTimerDisplay();
             countdownTimer = setInterval(() => {
                 timeLeft--;
-                updateTimerDisplay();
                 if (timeLeft <= 0) {
                     clearInterval(countdownTimer);
                     if (isContinuous) {
@@ -571,8 +592,7 @@
 
             els.btnCont.classList.remove('active-mode', 'btn-orange');
             els.btnOne.classList.remove('active-btn', 'btn-blue');
-            els.countdown.innerText = "";
-            els.status.classList.remove('analyzing-alert');
+
 
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
