@@ -999,6 +999,7 @@ input[type="range"]::-webkit-slider-thumb {
 #bpm-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 20%, #2ecc71 20%, #2ecc71 36%, #c0392b 36%, #c0392b 100%);
 }
+
 #bpm-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 20%, #2ecc71 20%, #2ecc71 36%, #c0392b 36%, #c0392b 100%);
 }
@@ -1007,6 +1008,7 @@ input[type="range"]::-webkit-slider-thumb {
 #spo2-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 83.3%, #2ecc71 83.3%, #2ecc71 100%);
 }
+
 #spo2-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 83.3%, #2ecc71 83.3%, #2ecc71 100%);
 }
@@ -1018,6 +1020,7 @@ input[type="range"]::-webkit-slider-thumb {
 #sys-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 27.8%, #2ecc71 27.8%, #2ecc71 50%, #c0392b 50%, #c0392b 100%);
 }
+
 #sys-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 27.8%, #2ecc71 27.8%, #2ecc71 50%, #c0392b 50%, #c0392b 100%);
 }
@@ -1029,6 +1032,7 @@ input[type="range"]::-webkit-slider-thumb {
 #dia-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 34.6%, #2ecc71 34.6%, #2ecc71 53.8%, #c0392b 53.8%, #c0392b 100%);
 }
+
 #dia-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 34.6%, #2ecc71 34.6%, #2ecc71 53.8%, #c0392b 53.8%, #c0392b 100%);
 }
@@ -1085,53 +1089,100 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* --- RESPONSIVITÉ MOBILE (New) --- */
 @media (max-width: 480px) {
+    body.pilote-mode {
+        padding: 0;
+        overflow: hidden; /* Empêche le scroll, on va tout faire rentrer */
+        align-items: flex-start; /* Evite le centrage qui peut couper en haut */
+    }
+
     .pilot-container {
-        padding: 15px;
+        padding: 10px;
         max-width: 100%;
+        height: auto;
+        min-height: 100vh;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: clamp(10px, 2.5vh, 20px);
     }
 
     .live-status-bar {
-        padding: 12px;
-        margin-bottom: 20px;
+        padding: 8px 12px;
+        margin-bottom: 0;
     }
 
-    .card-title {
+    .live-title {
+        font-size: 0.7rem;
+        margin-bottom: 4px;
+    }
+
+    .status-item .val {
         font-size: 1rem;
     }
 
-    /* Stack PNI si ça devient trop serré */
-    .nibp-group {
-        flex-direction: column;
-        gap: 20px;
+    .control-card {
+        padding: 8px 15px;
+        margin-bottom: 0;
+    }
+
+    .card-header {
+        margin-bottom: 5px;
+    }
+
+    .card-title {
+        font-size: 0.9rem;
+    }
+
+    .card-title svg {
+        width: 18px;
+        height: 18px;
     }
 
     .input-display {
-        width: 80px;
-        font-size: 1.3rem;
-        padding: 8px;
+        width: 60px;
+        font-size: 1.1rem;
+        padding: 4px;
     }
 
-    /* Slider plus gros pour le doigt */
+    .nibp-group {
+        flex-direction: row; /* Ne pas empiler pour sauver de la hauteur */
+        gap: 10px;
+    }
+
+    .nibp-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    input[type="range"] {
+        margin: 4px 0;
+    }
+
     input[type="range"]::-webkit-slider-thumb {
-        width: 28px;
-        height: 28px;
-        margin-top: -9px;
+        width: 22px;
+        height: 22px;
+        margin-top: -6px;
     }
 
     input[type="range"]::-webkit-slider-runnable-track {
         height: 10px;
     }
 
-    .btn-transmit {
-        padding: 20px;
-        font-size: 1.2rem;
-        border-radius: 16px;
-        /* Sticky en bas si besoin ? Pour l'instant on garde scroll */
+    .range-info {
+        margin-top: 2px;
+        font-size: 0.65rem;
     }
 
-    /* Plus d'espace pour toucher */
-    .control-card {
-        padding: 15px;
+    .action-area {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .btn-transmit {
+        padding: 14px;
+        font-size: 1.1rem;
+        border-radius: 12px;
     }
 }
 
