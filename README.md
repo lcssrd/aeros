@@ -53,4 +53,4 @@ Le moniteur simule l'appareil médical. Les valeurs sont floues par défaut jusq
 
 ## ⚖️ Licence
 
-Ce projet est sous licence **GNU GPLv3**. Voir le fichier `LICENSE` pour plus de détails.
+Ce projet est sous licence **GNU AGPLv3**. Voir le fichier `LICENSE` pour plus de détails.
