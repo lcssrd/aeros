@@ -11,6 +11,7 @@
 <body class="accueil">
 
     <h1><span class="brand-logo" style="font-size: 5rem;">AEROS</span></h1>
+    <p style="text-align: center; color: rgba(255,255,255,0.7); font-size: 1.2rem; margin-top: -15px; margin-bottom: 40px; font-weight: 300;">Simulateur de moniteur de signes vitaux pour la formation médicale</p>
 
     <div class="room-input-container" style="text-align: center; margin-bottom: 30px;">
         <label for="room-code"
@@ -42,6 +43,21 @@
         style="text-align: center; margin-top: 40px; color: rgba(255,255,255,0.5); font-size: 0.9rem;">
         <p style="margin: 5px 0;">Développé par <strong>Lucas Séraudie</strong></p>
         <p style="margin: 5px 0;">Licence <strong>GNU AGPLv3</strong></p>
+    </div>
+
+    <div class="other-projects-container">
+        <p class="projects-title">Mes autres projets</p>
+        <div class="projects-buttons">
+            <a href="https://eidos-simul.fr" target="_blank" class="eidos-btn">
+                <svg class="btn-icon-eidos" style="width: 1.2rem; height: 1.2rem; min-width: 1.2rem; color: #00A693;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
+                </svg>
+                Simulateur de dossier patient informatisé
+            </a>
+            <a href="https://lcssrd.github.io/pharmaco" target="_blank" class="eidos-btn">
+                <span class="btn-icon-eidos">💊</span> Les essentiels en pharmacologie
+            </a>
+        </div>
     </div>
 
     <script>
@@ -88,6 +104,154 @@
         #room-code:focus {
             border-color: rgba(255, 255, 255, 0.5) !important;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .other-projects-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .projects-title {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .projects-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .eidos-btn {
+            position: relative;
+            padding: 10px 22px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .eidos-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+            transform: skewX(-20deg);
+        }
+
+        .eidos-btn:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(100, 150, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.05) inset;
+            border-color: rgba(100, 180, 255, 0.4);
+            background: linear-gradient(135deg, rgba(40, 80, 150, 0.4), rgba(80, 40, 120, 0.4));
+            color: #ffffff;
+        }
+
+        .eidos-btn:hover::before {
+            left: 150%;
+        }
+
+        .btn-icon-eidos {
+            font-size: 1.2rem;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .eidos-btn:hover .btn-icon-eidos {
+            transform: rotate(20deg) scale(1.2);
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            body.accueil {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                padding: 30px 20px;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+            .brand-logo {
+                font-size: 3rem !important;
+            }
+
+            body.accueil > p {
+                font-size: 1rem !important;
+                margin-bottom: 30px !important;
+                padding: 0 10px;
+            }
+
+            .room-input-container input {
+                width: 100% !important;
+                max-width: 250px;
+            }
+
+            .menu-container {
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+                align-items: center;
+            }
+
+            .menu-btn {
+                width: 100%;
+                max-width: 250px;
+                height: 80px;
+            }
+
+            .footer-info {
+                margin-top: 50px !important;
+            }
+
+            .other-projects-container {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: 20px;
+                align-items: center;
+                width: 100%;
+                padding-bottom: 20px;
+            }
+
+            .projects-buttons {
+                align-items: center;
+                width: 100%;
+            }
+            
+            .eidos-btn {
+                font-size: 0.8rem;
+                padding: 10px;
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                text-align: center;
+            }
         }
     </style>
 
