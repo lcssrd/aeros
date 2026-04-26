@@ -9,28 +9,43 @@ const port = process.env.PORT || 3000;
 // Servir les fichiers du dossier 'public' (que nous allons créer ensuite)
 app.use(express.static('public'));
 
-// Valeurs par défaut au démarrage
-let currentParams = {
-    bpm: 80,
-    spo2: 98,
-    sys: 120,
-    dia: 80
-};
+const roomsData = {};
 
 io.on('connection', (socket) => {
     console.log('Un utilisateur est connecté');
 
-    // Dès qu'on se connecte, on envoie les valeurs actuelles (pour que le pilote sache où on en est)
-    socket.emit('updateParams', currentParams);
+    socket.on('joinRoom', (roomCode) => {
+        socket.join(roomCode);
+        socket.roomCode = roomCode;
+
+        // Valeurs par défaut pour une nouvelle salle
+        if (!roomsData[roomCode]) {
+            roomsData[roomCode] = {
+                bpm: 80,
+                spo2: 98,
+                sys: 120,
+                dia: 80
+            };
+        }
+
+        // Dès qu'on se connecte à la salle, on envoie les valeurs actuelles
+        socket.emit('updateParams', roomsData[roomCode]);
+        console.log(`Utilisateur a rejoint la salle : ${roomCode}`);
+    });
 
     // Quand le pilote envoie de nouvelles données
     socket.on('sendData', (data) => {
-        console.log('Données reçues du pilote :', data);
-        currentParams = data;
-        
-        // On diffuse la nouvelle consigne à tout le monde (y compris l'interface)
-        // Note: L'interface recevra l'info mais ne l'affichera que si on clique sur Start
-        io.emit('updateParams', currentParams);
+        if (socket.roomCode) {
+            console.log(`Données reçues du pilote (${socket.roomCode}) :`, data);
+            roomsData[socket.roomCode] = data;
+            
+            // On diffuse la nouvelle consigne à tout le monde dans la salle
+            io.to(socket.roomCode).emit('updateParams', data);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Un utilisateur est déconnecté');
     });
 });
 

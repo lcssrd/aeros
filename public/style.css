@@ -164,6 +164,13 @@ input[type="range"]::-webkit-slider-runnable-track {
     border-radius: 2px;
 }
 
+input[type="range"]::-moz-range-track {
+    width: 100%;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+}
+
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -172,6 +179,14 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 50%;
     background: #fff;
     margin-top: -5px;
+}
+
+input[type="range"]::-moz-range-thumb {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
 }
 
 
@@ -275,32 +290,21 @@ input[type="range"]::-webkit-slider-thumb {
     transform: scale(1.05);
 }
 
-/* 2. GRILLE INTELLIGENTE */
+/* 2. GRILLE 2x2 FIXE */
 .monitor-grid {
     flex: 1;
     display: grid;
     gap: 3px;
     padding: 3px;
     background: rgba(0, 0, 0, 0.3);
-    /* Mobile (Portrait) */
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
     max-height: calc(100vh - 56px);
-    /* Hauteur viewport moins header */
     overflow: hidden;
 }
 
-/* Mobile - Contrainte 800px max */
-@media (max-aspect-ratio: 1/1),
-(max-width: 768px) {
-    .monitor-frame {
-        max-height: 800px;
-    }
-
-    .monitor-grid {
-        max-height: calc(800px - 56px);
-    }
-
+/* Ajustements typographiques pour mobile */
+@media (max-width: 768px) {
     .param-box {
         padding: 12px 20px;
     }
@@ -331,23 +335,6 @@ input[type="range"]::-webkit-slider-thumb {
         white-space: nowrap !important;
         line-height: 1.2 !important;
         text-align: center !important;
-    }
-}
-
-/* Paysage */
-@media (min-aspect-ratio: 1/1) {
-    .monitor-grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
-        max-height: none;
-    }
-}
-
-/* Ultrawide */
-@media (min-aspect-ratio: 2/1) {
-    .monitor-grid {
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: 1fr;
     }
 }
 
@@ -1012,9 +999,15 @@ input[type="range"]::-webkit-slider-thumb {
 #bpm-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 20%, #2ecc71 20%, #2ecc71 36%, #c0392b 36%, #c0392b 100%);
 }
+#bpm-slider::-moz-range-track {
+    background: linear-gradient(to right, #c0392b 0%, #c0392b 20%, #2ecc71 20%, #2ecc71 36%, #c0392b 36%, #c0392b 100%);
+}
 
 /* SpO2 (70-100) -> Seuil 95% = 83.3% */
 #spo2-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #c0392b 0%, #c0392b 83.3%, #2ecc71 83.3%, #2ecc71 100%);
+}
+#spo2-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 83.3%, #2ecc71 83.3%, #2ecc71 100%);
 }
 
@@ -1025,12 +1018,18 @@ input[type="range"]::-webkit-slider-thumb {
 #sys-slider::-webkit-slider-runnable-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 27.8%, #2ecc71 27.8%, #2ecc71 50%, #c0392b 50%, #c0392b 100%);
 }
+#sys-slider::-moz-range-track {
+    background: linear-gradient(to right, #c0392b 0%, #c0392b 27.8%, #2ecc71 27.8%, #2ecc71 50%, #c0392b 50%, #c0392b 100%);
+}
 
 /* Dia (20-150) -> Plage de 130.
    Seuil bas (65) : (65-20)/130 = 34.6%
    Seuil haut (90) : (90-20)/130 = 53.8%
 */
 #dia-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #c0392b 0%, #c0392b 34.6%, #2ecc71 34.6%, #2ecc71 53.8%, #c0392b 53.8%, #c0392b 100%);
+}
+#dia-slider::-moz-range-track {
     background: linear-gradient(to right, #c0392b 0%, #c0392b 34.6%, #2ecc71 34.6%, #2ecc71 53.8%, #c0392b 53.8%, #c0392b 100%);
 }
 

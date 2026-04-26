@@ -89,7 +89,7 @@
 
         <div class="top-bar">
             <div class="monitor-logo brand-logo">AEROS</div>
-            <div class="patient-info">ADULTE - STANDARD</div>
+            <div class="patient-info">ADULTE - STANDARD <span style="margin-left: 15px; color: #00d4ff; background: rgba(0, 212, 255, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(0, 212, 255, 0.3);">CODE: <span id="display-room">--</span></span></div>
             <div class="top-right">
                 <div id="clock">--:--</div>
                 <button id="btn-fs" class="fs-btn" title="Plein écran">⛶</button>
@@ -203,7 +203,18 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomCode = urlParams.get('room');
+        if (!roomCode) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('display-room').innerText = roomCode;
+
         const socket = io();
+        socket.on('connect', () => {
+            socket.emit('joinRoom', roomCode);
+        });
 
         // Audio
         const audioPlayer = document.getElementById('audio-cuff');

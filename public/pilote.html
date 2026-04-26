@@ -15,7 +15,7 @@
 
         <div class="live-status-bar">
             <div class="live-title">
-                <span>Moniteur Élève (Live)</span>
+                <span>Moniteur Élève <span style="margin-left: 10px; font-size: 0.8em; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.3);">CODE: <span id="display-room">--</span></span></span>
                 <span class="live-indicator"></span>
             </div>
             <div class="status-grid">
@@ -36,9 +36,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--col-hr);">
+        <div class="control-card" style="border-left: 4px solid var(--color-hr);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--col-hr);">
+                <div class="card-title" style="color: var(--color-hr);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path
                             d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -54,9 +54,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--col-spo2);">
+        <div class="control-card" style="border-left: 4px solid var(--color-spo2);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--col-spo2);">
+                <div class="card-title" style="color: var(--color-spo2);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path
                             d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z" />
@@ -72,9 +72,9 @@
             </div>
         </div>
 
-        <div class="control-card" style="border-left: 4px solid var(--col-nibp);">
+        <div class="control-card" style="border-left: 4px solid var(--color-nibp);">
             <div class="card-header">
-                <div class="card-title" style="color: var(--col-nibp);">
+                <div class="card-title" style="color: var(--color-nibp);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path
                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
@@ -115,7 +115,18 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomCode = urlParams.get('room');
+        if (!roomCode) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('display-room').innerText = roomCode;
+
         const socket = io();
+        socket.on('connect', () => {
+            socket.emit('joinRoom', roomCode);
+        });
 
         socket.on('updateParams', (data) => {
             document.getElementById('srv-bpm').innerText = data.bpm;
