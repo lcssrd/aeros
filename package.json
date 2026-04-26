@@ -1,7 +1,7 @@
 {
-  "name": "simu-dynamap",
+  "name": "simu-tensiometre",
   "version": "1.0.0",
-  "description": "Simulateur Dynamap avec controle a distance",
+  "description": "Simulateur tensiomètre avec contrôle à distance",
   "main": "server.js",
   "license": "GPL-3.0-or-later",
   "scripts": {

@@ -1,6 +1,6 @@
-# Aeros - Simulateur Dynamap
+# Aeros - Simulateur tensiomètre
 
-Simulateur Dynamap avec contrôle à distance pour la formation et le monitorage.
+Aeros est un outil de simulation médicale conçu pour la formation. Il permet de simuler un moniteur de signes vitaux (type tensiomètre électronique) contrôlable à distance par un instructeur.
 
 ## 🚀 Installation
 
@@ -15,14 +15,34 @@ Assurez-vous d'avoir [Node.js](https://nodejs.org/) installé sur votre machine.
 
 ## 🛠️ Utilisation
 
-Pour lancer le serveur :
+### Lancement du serveur
 ```bash
 npm start
 ```
 
 Le serveur sera accessible sur :
-- **Moniteur** : `http://localhost:3000/monitor.html`
-- **Pilote** : `http://localhost:3000/pilote.html`
+- **Accueil (Portail)** : `http://localhost:3000/`
+- **Moniteur (Élève)** : `http://localhost:3000/monitor.html`
+- **Pilote (Instructeur)** : `http://localhost:3000/pilote.html`
+
+---
+
+### 🎮 Côté Instructeur (Interface Pilote)
+L'instructeur définit les paramètres physiologiques que le moniteur devra afficher.
+*   **Réglages** : Modifiez la Fréquence Cardiaque (BPM), la Saturation (SpO2) et la Pression Artérielle (Systolique/Diastolique).
+*   **Transmission** : Cliquez sur **"APPLIQUER LES VALEURS"** pour envoyer les données au moniteur en temps réel.
+*   **Monitoring Live** : La barre supérieure affiche les valeurs actuellement actives pour vérification.
+
+### 🖥️ Côté Élève (Interface Moniteur)
+Le moniteur simule l'appareil médical. Les valeurs sont floues par défaut jusqu'à activation.
+*   **Activation des capteurs** :
+    *   **SpO2 + Pouls** : Affiche la saturation et la fréquence cardiaque (bip sonore synchronisé et courbe).
+    *   **Tension Start** : Lance une prise de tension unique (bruitage de brassard).
+    *   **Tension Auto** : Lance une prise de tension toutes les 2 minutes.
+*   **Alertes** : Si les paramètres sortent des zones de sécurité, les chiffres clignotent en rouge et une alarme sonore retentit.
+*   **Options** : Mode plein écran (⛶) et bouton Mute (🔊).
+
+---
 
 ## 📁 Structure du projet
 
