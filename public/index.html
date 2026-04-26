@@ -1,20 +1,28 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aeros - Accueil</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="accueil">
 
     <h1><span class="brand-logo" style="font-size: 5rem;">AEROS</span></h1>
-    
+
     <div class="room-input-container" style="text-align: center; margin-bottom: 30px;">
-        <label for="room-code" style="color: rgba(255,255,255,0.8); font-size: 1.2rem; display: block; margin-bottom: 10px; font-weight: 500;">Code de connexion</label>
-        <input type="text" id="room-code" style="padding: 12px 20px; font-size: 1.5rem; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; text-align: center; width: 200px; outline: none; font-weight: bold; letter-spacing: 2px;" autocomplete="off">
-        <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 15px; max-width: 350px; margin-left: auto; margin-right: auto; line-height: 1.4;">
-            ⚠️ Pour relier un Moniteur et un Pilote, veillez à utiliser <strong>le même code</strong> sur les deux appareils.
+        <label for="room-code"
+            style="color: rgba(255,255,255,0.8); font-size: 1.2rem; display: block; margin-bottom: 10px; font-weight: 500;">Code
+            de connexion</label>
+        <input type="text" id="room-code"
+            style="padding: 12px 20px; font-size: 1.5rem; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; text-align: center; width: 200px; outline: none; font-weight: bold; letter-spacing: 2px;"
+            autocomplete="off">
+        <p
+            style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 15px; max-width: 350px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+            ⚠️ Pour relier un Moniteur et un Pilote, veillez à utiliser <strong>le même code</strong> sur les deux
+            appareils.
         </p>
     </div>
 
@@ -23,11 +31,17 @@
             <div class="btn-icon">📺</div>
             <div class="btn-text">Moniteur</div>
         </a>
-        
+
         <a href="#" onclick="join('pilote.html'); return false;" class="menu-btn">
             <div class="btn-icon">🎛️</div>
             <div class="btn-text">Pilote</div>
         </a>
+    </div>
+
+    <div class="footer-info"
+        style="text-align: center; margin-top: 40px; color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+        <p style="margin: 5px 0;">Développé par <strong>Lucas Séraudie</strong></p>
+        <p style="margin: 5px 0;">Licence <strong>GNU AGPLv3</strong></p>
     </div>
 
     <script>
@@ -50,17 +64,33 @@
     </script>
     <style>
         @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
         }
+
         #room-code:focus {
-            border-color: rgba(255,255,255,0.5) !important;
-            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
         }
     </style>
 
 </body>
+
 </html>
