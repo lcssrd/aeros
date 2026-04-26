@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEROS Control</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="pilote-mode">
+
+    <div class="pilot-container">
+
+        <div class="live-status-bar">
+            <div class="live-title">
+                <span>Moniteur Élève (Live)</span>
+                <span class="live-indicator"></span>
+            </div>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="val val-bpm" id="srv-bpm">--</span>
+                    <span class="label">FC</span>
+                </div>
+                <div class="status-item">
+                    <span class="val val-spo2" id="srv-spo2">--</span>
+                    <span class="label">SpO2</span>
+                </div>
+                <div class="status-item">
+                    <span class="val val-nibp">
+                        <span id="srv-sys">--</span>/<span id="srv-dia">--</span>
+                    </span>
+                    <span class="label">TA</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-card" style="border-left: 4px solid var(--col-hr);">
+            <div class="card-header">
+                <div class="card-title" style="color: var(--col-hr);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    Fréquence Cardiaque
+                </div>
+                <input type="number" id="bpm" class="input-display" value="80" min="0" max="250"
+                    oninput="syncSlider('bpm')">
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="bpm-slider" min="0" max="250" value="80" oninput="syncNumber('bpm')">
+                <div class="range-info">Zone sûre : 50 - 90</div>
+            </div>
+        </div>
+
+        <div class="control-card" style="border-left: 4px solid var(--col-spo2);">
+            <div class="card-header">
+                <div class="card-title" style="color: var(--col-spo2);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z" />
+                    </svg>
+                    Saturation (SpO2)
+                </div>
+                <input type="number" id="spo2" class="input-display" value="98" min="70" max="100"
+                    oninput="syncSlider('spo2')">
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="spo2-slider" min="70" max="100" value="98" oninput="syncNumber('spo2')">
+                <div class="range-info">Zone sûre : > 95%</div>
+            </div>
+        </div>
+
+        <div class="control-card" style="border-left: 4px solid var(--col-nibp);">
+            <div class="card-header">
+                <div class="card-title" style="color: var(--col-nibp);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                    </svg>
+                    Pression Artérielle
+                </div>
+            </div>
+
+            <div class="nibp-group">
+                <div class="nibp-half">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span class="nibp-label">Systolique</span>
+                        <input type="number" id="sys" class="input-display" value="120" min="50" max="230"
+                            oninput="syncSlider('sys')">
+                    </div>
+                    <input type="range" id="sys-slider" min="50" max="230" value="120" oninput="syncNumber('sys')">
+                </div>
+
+                <div class="nibp-half">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span class="nibp-label">Diastolique</span>
+                        <input type="number" id="dia" class="input-display" value="80" min="20" max="150"
+                            oninput="syncSlider('dia')">
+                    </div>
+                    <input type="range" id="dia-slider" min="20" max="150" value="80" oninput="syncNumber('dia')">
+                </div>
+            </div>
+            <div class="range-info" style="margin-top:10px;">Sys: 100-140 | Dia: 65-90</div>
+        </div>
+
+        <div class="action-area">
+            <button id="btn-update" class="btn-transmit" onclick="sendData()">
+                APPLIQUER LES VALEURS
+            </button>
+        </div>
+
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('updateParams', (data) => {
+            document.getElementById('srv-bpm').innerText = data.bpm;
+            document.getElementById('srv-spo2').innerText = data.spo2;
+            document.getElementById('srv-sys').innerText = data.sys;
+            document.getElementById('srv-dia').innerText = data.dia;
+        });
+
+        function syncSlider(id) {
+            document.getElementById(id + '-slider').value = document.getElementById(id).value;
+        }
+        function syncNumber(id) {
+            document.getElementById(id).value = document.getElementById(id + '-slider').value;
+        }
+
+        function sendData() {
+            const data = {
+                bpm: document.getElementById('bpm').value,
+                spo2: document.getElementById('spo2').value,
+                sys: document.getElementById('sys').value,
+                dia: document.getElementById('dia').value
+            };
+            socket.emit('sendData', data);
+
+            const btn = document.getElementById('btn-update');
+            const originalText = btn.innerText;
+
+            btn.style.background = "#fff";
+            btn.style.color = "#27ae60";
+            btn.innerText = "TRANSMIS ✓";
+
+            setTimeout(() => {
+                btn.style.background = "";
+                btn.style.color = "";
+                btn.innerText = originalText;
+            }, 800);
+        }
+    </script>
+</body>
+
+</html>
