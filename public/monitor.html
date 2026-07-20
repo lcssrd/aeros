@@ -522,7 +522,7 @@
                 els.dia.style.opacity = 1;
 
 
-                checkAlerts();
+                checkAlerts(true);
 
                 if (!isContinuous) {
                     els.btnOne.classList.remove('active-btn', 'btn-blue');
@@ -535,7 +535,10 @@
         }
 
         // --- ALERTES ---
-        function checkAlerts() {
+        // fromNibp = true : appel déclenché par une prise de tension (la tension peut sonner).
+        // fromNibp = false : appel déclenché par la SpO2 / variation du pouls
+        //                    -> on met à jour l'affichage de la tension mais elle ne sonne pas.
+        function checkAlerts(fromNibp = false) {
             const sysVal = parseInt(serverBuffer.sys);
             const diaVal = parseInt(serverBuffer.dia);
             const bpmVal = parseInt(serverBuffer.bpm);
@@ -546,8 +549,12 @@
             let triggerAlert = false;
 
             if (els.sys.innerText !== '--') {
-                if (sysVal <= 100 || sysVal >= 140) { triggerAlert = true; els.sys.classList.add('alert-active'); }
-                if (diaVal <= 65 || diaVal >= 90) { triggerAlert = true; els.dia.classList.add('alert-active'); }
+                const sysAlert = sysVal <= 100 || sysVal >= 140;
+                const diaAlert = diaVal <= 65 || diaVal >= 90;
+                if (sysAlert) els.sys.classList.add('alert-active');
+                if (diaAlert) els.dia.classList.add('alert-active');
+                // La tension ne fait sonner l'alarme qu'au moment de sa propre mesure.
+                if (fromNibp && (sysAlert || diaAlert)) triggerAlert = true;
             }
             if (els.bpm.innerText !== '--') {
                 if (bpmVal > 90 || bpmVal < 50) { triggerAlert = true; els.bpm.classList.add('alert-active'); }
