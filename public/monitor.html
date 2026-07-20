@@ -544,17 +544,23 @@
             const bpmVal = parseInt(serverBuffer.bpm);
             const spo2Val = parseInt(serverBuffer.spo2);
 
-            [els.sys, els.dia, els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
+            [els.bpm, els.spo2].forEach(el => el.classList.remove('alert-active'));
 
             let triggerAlert = false;
 
-            if (els.sys.innerText !== '--') {
-                const sysAlert = sysVal <= 100 || sysVal >= 140;
-                const diaAlert = diaVal <= 65 || diaVal >= 90;
-                if (sysAlert) els.sys.classList.add('alert-active');
-                if (diaAlert) els.dia.classList.add('alert-active');
-                // La tension ne fait sonner l'alarme qu'au moment de sa propre mesure.
-                if (fromNibp && (sysAlert || diaAlert)) triggerAlert = true;
+            // Le rouge (et le son) de la tension ne sont recalculés qu'au moment
+            // d'une prise de tension : sinon on laisse l'affichage tel quel pour
+            // ne pas marquer/effacer une tension qui n'a pas été reprise.
+            if (fromNibp) {
+                els.sys.classList.remove('alert-active');
+                els.dia.classList.remove('alert-active');
+                if (els.sys.innerText !== '--') {
+                    const sysAlert = sysVal <= 100 || sysVal >= 140;
+                    const diaAlert = diaVal <= 65 || diaVal >= 90;
+                    if (sysAlert) els.sys.classList.add('alert-active');
+                    if (diaAlert) els.dia.classList.add('alert-active');
+                    if (sysAlert || diaAlert) triggerAlert = true;
+                }
             }
             if (els.bpm.innerText !== '--') {
                 if (bpmVal > 90 || bpmVal < 50) { triggerAlert = true; els.bpm.classList.add('alert-active'); }
