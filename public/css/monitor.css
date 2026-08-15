@@ -333,15 +333,19 @@ body.monitor-mode {
 
 .pleth-wave {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 200%;
   height: 100%;
+  display: flex;
   animation: scrollWave 4s linear infinite;
 }
 
 .pleth-wave svg {
   width: 50%;
   height: 100%;
-  display: inline-block;
+  flex: 0 0 50%;
+  display: block;
 }
 
 .pleth-wave path {
