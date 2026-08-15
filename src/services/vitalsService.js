@@ -79,13 +79,18 @@ export function validateVitals(payload) {
 /**
  * Evaluates alarm conditions based on current vitals and sensor activation states.
  *
+ * NOTE ON NIBP (Blood Pressure):
+ * Blood pressure only triggers an acoustic alarm and visual threshold evaluation
+ * at the specific moment a measurement is performed (`fromNibp: true`).
+ * Continuous SpO2/pulse monitoring or parameter changes must NOT sound the tension alarm.
+ *
  * @param {object} options
  * @param {{ bpm: number|string, spo2: number|string, sys: number|string, dia: number|string }} options.vitals
  * @param {boolean} [options.isSpo2Active=false]
- * @param {boolean} [options.isNibpMeasured=false]
+ * @param {boolean} [options.fromNibp=false]
  * @returns {{ triggerAlert: boolean, alerts: { bpm: boolean, spo2: boolean, sys: boolean, dia: boolean } }}
  */
-export function evaluateAlerts({ vitals, isSpo2Active = false, isNibpMeasured = false }) {
+export function evaluateAlerts({ vitals, isSpo2Active = false, fromNibp = false }) {
   const alerts = {
     bpm: false,
     spo2: false,
@@ -100,7 +105,7 @@ export function evaluateAlerts({ vitals, isSpo2Active = false, isNibpMeasured = 
   const dia = Number(vitals.dia);
 
   // Heart Rate (BPM) alarm
-  if (!isNaN(bpm) && isSpo2Active) {
+  if (isSpo2Active && !isNaN(bpm)) {
     if (bpm < MEDICAL_THRESHOLDS.BPM.MIN_SAFE || bpm > MEDICAL_THRESHOLDS.BPM.MAX_SAFE) {
       alerts.bpm = true;
       triggerAlert = true;
@@ -108,15 +113,15 @@ export function evaluateAlerts({ vitals, isSpo2Active = false, isNibpMeasured = 
   }
 
   // SpO2 alarm
-  if (!isNaN(spo2) && isSpo2Active) {
+  if (isSpo2Active && !isNaN(spo2)) {
     if (spo2 < MEDICAL_THRESHOLDS.SPO2.MIN_SAFE) {
       alerts.spo2 = true;
       triggerAlert = true;
     }
   }
 
-  // NIBP (Blood pressure) alarm - only evaluated if measurement was performed
-  if (isNibpMeasured && !isNaN(sys) && !isNaN(dia)) {
+  // NIBP (Blood pressure) alarm - ONLY evaluated when fromNibp is explicitly true
+  if (fromNibp && !isNaN(sys) && !isNaN(dia)) {
     if (sys < MEDICAL_THRESHOLDS.SYS.MIN_SAFE || sys > MEDICAL_THRESHOLDS.SYS.MAX_SAFE) {
       alerts.sys = true;
       triggerAlert = true;

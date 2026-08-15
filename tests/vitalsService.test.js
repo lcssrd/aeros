@@ -65,7 +65,7 @@ describe('Vitals Service', () => {
       const result = evaluateAlerts({
         vitals,
         isSpo2Active: true,
-        isNibpMeasured: true,
+        fromNibp: true,
       });
 
       expect(result.triggerAlert).toBe(false);
@@ -82,7 +82,7 @@ describe('Vitals Service', () => {
       const result = evaluateAlerts({
         vitals,
         isSpo2Active: true,
-        isNibpMeasured: false,
+        fromNibp: false,
       });
 
       expect(result.triggerAlert).toBe(true);
@@ -94,7 +94,7 @@ describe('Vitals Service', () => {
       const result = evaluateAlerts({
         vitals,
         isSpo2Active: false,
-        isNibpMeasured: false,
+        fromNibp: false,
       });
 
       expect(result.triggerAlert).toBe(false);
@@ -117,15 +117,28 @@ describe('Vitals Service', () => {
       expect(brady.alerts.bpm).toBe(true);
     });
 
-    it('triggers NIBP alert when blood pressure is abnormal after measurement', () => {
-      const hypo = evaluateAlerts({
-        vitals: { bpm: 75, spo2: 98, sys: 90, dia: 55 },
+    it('triggers NIBP alert only when fromNibp is true', () => {
+      const abnormalTension = { bpm: 75, spo2: 98, sys: 90, dia: 55 };
+
+      // Case 1: Routine SpO2 check (fromNibp = false) -> MUST NOT trigger alert for tension!
+      const routineResult = evaluateAlerts({
+        vitals: abnormalTension,
         isSpo2Active: true,
-        isNibpMeasured: true,
+        fromNibp: false,
       });
-      expect(hypo.triggerAlert).toBe(true);
-      expect(hypo.alerts.sys).toBe(true);
-      expect(hypo.alerts.dia).toBe(true);
+      expect(routineResult.triggerAlert).toBe(false);
+      expect(routineResult.alerts.sys).toBe(false);
+      expect(routineResult.alerts.dia).toBe(false);
+
+      // Case 2: Post-measurement check (fromNibp = true) -> MUST trigger alert!
+      const measurementResult = evaluateAlerts({
+        vitals: abnormalTension,
+        isSpo2Active: true,
+        fromNibp: true,
+      });
+      expect(measurementResult.triggerAlert).toBe(true);
+      expect(measurementResult.alerts.sys).toBe(true);
+      expect(measurementResult.alerts.dia).toBe(true);
     });
   });
 

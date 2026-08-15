@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         els.spo2.textContent = serverBuffer.spo2;
         els.bpm.textContent = serverBuffer.bpm;
         updateBeepInterval();
-        checkAlerts();
+        checkAlerts(false);
       }
     });
   }
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
           els.bpm.textContent = jitteredBpm;
         }
         updateBeepInterval();
-        checkAlerts();
+        checkAlerts(false);
       }
     }, SIMULATION_CONFIG.PULSE_JITTER_INTERVAL_MS);
   }
@@ -185,10 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Alert Checking
-  function checkAlerts() {
+  // fromNibp = true : déclenché uniquement lors d'une prise de tension (la tension peut sonner).
+  // fromNibp = false : déclenché par SpO2 / variation de pouls (la tension ne sonne pas).
+  function checkAlerts(fromNibp = false) {
     const currentVitals = {
-      bpm: els.bpm?.textContent || serverBuffer.bpm,
-      spo2: els.spo2?.textContent || serverBuffer.spo2,
+      bpm: els.bpm?.textContent !== '--' ? els.bpm?.textContent : serverBuffer.bpm,
+      spo2: els.spo2?.textContent !== '--' ? els.spo2?.textContent : serverBuffer.spo2,
       sys: serverBuffer.sys,
       dia: serverBuffer.dia,
     };
@@ -196,14 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const evaluation = evaluateAlerts({
       vitals: currentVitals,
       isSpo2Active: isSpo2Monitoring,
-      isNibpMeasured: isNibpMeasured,
+      fromNibp: fromNibp,
     });
 
-    // Reset visual alert states
+    // Alertes visuelles SpO2 et Fréquence cardiaque
     els.bpm?.classList.toggle('alert-active', evaluation.alerts.bpm);
     els.spo2?.classList.toggle('alert-active', evaluation.alerts.spo2);
-    els.sys?.classList.toggle('alert-active', evaluation.alerts.sys);
-    els.dia?.classList.toggle('alert-active', evaluation.alerts.dia);
+
+    // Le rouge de la tension n'est recalculé qu'au moment d'une prise de tension
+    if (fromNibp) {
+      els.sys?.classList.toggle('alert-active', evaluation.alerts.sys);
+      els.dia?.classList.toggle('alert-active', evaluation.alerts.dia);
+    }
 
     if (evaluation.triggerAlert) {
       audioManager.playAlarm();
@@ -237,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       updateAnimations();
-      checkAlerts();
+      checkAlerts(false);
       startBpmVariation();
       updateBeepInterval();
     }, SIMULATION_CONFIG.SPO2_CONNECT_DURATION_MS);
@@ -268,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateAnimations();
-    checkAlerts();
+    checkAlerts(false);
 
     if (!isContinuous && !isNibpAnalyzing && els.btnStop) {
       els.btnStop.disabled = true;
@@ -336,7 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
         els.dia.style.opacity = '1';
       }
 
-      checkAlerts();
+      // La prise de tension s'achève : évaluation explicite de la tension (fromNibp = true)
+      checkAlerts(true);
 
       if (!isContinuous) {
         els.btnOne?.classList.remove('active-btn');
@@ -380,10 +387,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (els.sys) {
       els.sys.style.opacity = '1';
+      els.sys.classList.remove('alert-active');
     }
     if (els.dia) {
       els.dia.style.opacity = '1';
+      els.dia.classList.remove('alert-active');
     }
+
+    checkAlerts(false);
   }
 
   // Button Listeners for NIBP
