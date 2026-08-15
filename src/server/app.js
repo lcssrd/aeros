@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicPath = path.resolve(__dirname, '../../public');
-const srcPath = path.resolve(__dirname, '../../src');
+const servicesPath = path.resolve(__dirname, '../services');
+const constantsPath = path.resolve(__dirname, '../constants');
 
 /**
  * Creates and configures the Express application.
@@ -22,7 +23,7 @@ export function createApp() {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
           mediaSrc: ["'self'", 'data:', 'blob:'],
@@ -43,8 +44,9 @@ export function createApp() {
     });
   });
 
-  // Serve shared source modules for native browser ES modules
-  app.use('/src', express.static(srcPath));
+  // Serve shared source modules for native browser ES modules (restricted to non-server folders)
+  app.use('/src/services', express.static(servicesPath));
+  app.use('/src/constants', express.static(constantsPath));
 
   // Serve static assets from public/ directory
   app.use(express.static(publicPath));

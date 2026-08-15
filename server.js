@@ -1,7 +1,7 @@
 import http from 'http';
 import { Server } from 'socket.io';
 import { createApp } from './src/server/app.js';
-import { RoomManager } from './src/server/roomManager.js';
+import { RoomManager, sanitizeRoomCode } from './src/server/roomManager.js';
 
 const PORT = process.env.PORT || 3000;
 const app = createApp();
@@ -17,24 +17,29 @@ const cleanupTimer = setInterval(() => {
 
 io.on('connection', socket => {
   socket.on('joinRoom', roomCode => {
-    if (!roomCode) {
+    const sanitizedCode = sanitizeRoomCode(roomCode);
+    if (!sanitizedCode) {
+      socket.emit('error', 'Code de room invalide');
       return;
     }
-    const sanitizedCode = String(roomCode).trim();
     socket.join(sanitizedCode);
     roomManager.addClient(sanitizedCode, socket.id);
 
     const currentVitals = roomManager.getOrCreateRoom(sanitizedCode);
-    // Send current vitals to the newly connected socket
-    socket.emit('updateParams', currentVitals);
+    if (currentVitals) {
+      // Send current vitals to the newly connected socket
+      socket.emit('updateParams', currentVitals);
+    }
   });
 
   socket.on('sendData', rawData => {
     const roomCode = roomManager.getRoomBySocketId(socket.id);
     if (roomCode && rawData) {
       const sanitizedVitals = roomManager.updateRoomData(roomCode, rawData);
-      // Broadcast updated vitals to all clients in the room
-      io.to(roomCode).emit('updateParams', sanitizedVitals);
+      if (sanitizedVitals) {
+        // Broadcast updated vitals to all clients in the room
+        io.to(roomCode).emit('updateParams', sanitizedVitals);
+      }
     }
   });
 

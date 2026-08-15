@@ -5,6 +5,25 @@
 import { DEFAULT_VITALS } from '../constants/medical.js';
 import { validateVitals } from '../services/vitalsService.js';
 
+export const ROOM_CODE_REGEX = /^[a-zA-Z0-9_-]{1,16}$/;
+
+/**
+ * Sanitizes and validates a room code.
+ *
+ * @param {any} roomCode - Raw room code input
+ * @returns {string|null} Sanitized room code or null if invalid
+ */
+export function sanitizeRoomCode(roomCode) {
+  if (typeof roomCode !== 'string' && typeof roomCode !== 'number') {
+    return null;
+  }
+  const code = String(roomCode).trim();
+  if (!ROOM_CODE_REGEX.test(code)) {
+    return null;
+  }
+  return code;
+}
+
 export class RoomManager {
   constructor() {
     /** @type {Map<string, { bpm: number, spo2: number, sys: number, dia: number }>} */
@@ -21,10 +40,13 @@ export class RoomManager {
    * Retrieves existing room vitals data or initializes with defaults.
    *
    * @param {string} roomCode
-   * @returns {{ bpm: number, spo2: number, sys: number, dia: number }}
+   * @returns {{ bpm: number, spo2: number, sys: number, dia: number }|null}
    */
   getOrCreateRoom(roomCode) {
-    const code = String(roomCode).trim();
+    const code = sanitizeRoomCode(roomCode);
+    if (!code) {
+      return null;
+    }
     if (!this.rooms.has(code)) {
       this.rooms.set(code, { ...DEFAULT_VITALS });
       this.roomClients.set(code, new Set());
@@ -37,10 +59,13 @@ export class RoomManager {
    *
    * @param {string} roomCode
    * @param {object} rawData
-   * @returns {{ bpm: number, spo2: number, sys: number, dia: number }}
+   * @returns {{ bpm: number, spo2: number, sys: number, dia: number }|null}
    */
   updateRoomData(roomCode, rawData) {
-    const code = String(roomCode).trim();
+    const code = sanitizeRoomCode(roomCode);
+    if (!code) {
+      return null;
+    }
     const sanitized = validateVitals(rawData);
     this.rooms.set(code, sanitized);
     return sanitized;
@@ -53,7 +78,10 @@ export class RoomManager {
    * @returns {{ bpm: number, spo2: number, sys: number, dia: number }|undefined}
    */
   getRoomData(roomCode) {
-    const code = String(roomCode).trim();
+    const code = sanitizeRoomCode(roomCode);
+    if (!code) {
+      return undefined;
+    }
     return this.rooms.get(code);
   }
 
@@ -62,9 +90,13 @@ export class RoomManager {
    *
    * @param {string} roomCode
    * @param {string} socketId
+   * @returns {boolean} True if client was added, false if invalid
    */
   addClient(roomCode, socketId) {
-    const code = String(roomCode).trim();
+    const code = sanitizeRoomCode(roomCode);
+    if (!code || !socketId) {
+      return false;
+    }
     this.getOrCreateRoom(code);
 
     const clientSet = this.roomClients.get(code);
@@ -72,6 +104,7 @@ export class RoomManager {
       clientSet.add(socketId);
     }
     this.socketToRoom.set(socketId, code);
+    return true;
   }
 
   /**
@@ -99,7 +132,10 @@ export class RoomManager {
    * @returns {number}
    */
   getClientCount(roomCode) {
-    const code = String(roomCode).trim();
+    const code = sanitizeRoomCode(roomCode);
+    if (!code) {
+      return 0;
+    }
     const clientSet = this.roomClients.get(code);
     return clientSet ? clientSet.size : 0;
   }
