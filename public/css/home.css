@@ -13,9 +13,26 @@ body.accueil {
   overflow-y: auto;
 }
 
+body.accueil main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+}
+
+body.accueil h1 {
+  text-align: center;
+  margin: 0;
+}
+
 .home-logo {
   font-size: 5rem;
   margin-bottom: 0;
+  display: inline-block;
 }
 
 .home-subtitle {
@@ -30,6 +47,7 @@ body.accueil {
 .room-input-container {
   text-align: center;
   margin-bottom: 30px;
+  width: 100%;
 }
 
 .room-input-label {
@@ -78,6 +96,9 @@ body.accueil {
 .menu-container {
   display: flex;
   gap: 20px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .menu-btn {
