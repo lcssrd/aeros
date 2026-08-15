@@ -8,8 +8,8 @@ Merci de contribuer à **Aeros** ! Afin de maintenir un niveau d'excellence tech
 
 ### Prérequis
 
-- **Node.js** >= 18.0.0
-- **npm** >= 9.0.0
+- **Node.js** >= 24.0.0
+- **npm** >= 10.0.0
 
 ### Installation
 

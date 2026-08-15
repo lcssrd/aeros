@@ -25,7 +25,7 @@
 
 ### Prérequis
 
-- [Node.js](https://nodejs.org/) version 18.x ou supérieure.
+- [Node.js](https://nodejs.org/) version 24.x ou supérieure.
 
 ### 1. Installation
 
