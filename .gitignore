@@ -11,3 +11,4 @@ build/
 *.zip
 *.rar
 .agent/
+.antigravity/

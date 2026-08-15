@@ -1,54 +1,63 @@
-const express = require('express');
-const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+import http from 'http';
+import { Server } from 'socket.io';
+import { createApp } from './src/server/app.js';
+import { RoomManager } from './src/server/roomManager.js';
 
-// Utiliser le port défini par Render ou 3000 en local
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+const app = createApp();
+const httpServer = http.createServer(app);
+const io = new Server(httpServer);
+const roomManager = new RoomManager();
 
-// Servir les fichiers du dossier 'public' (que nous allons créer ensuite)
-app.use(express.static('public'));
+// Periodically clean up orphaned empty rooms every 10 minutes
+const ROOM_CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+const cleanupTimer = setInterval(() => {
+  roomManager.cleanEmptyRooms();
+}, ROOM_CLEANUP_INTERVAL_MS);
 
-const roomsData = {};
+io.on('connection', socket => {
+  socket.on('joinRoom', roomCode => {
+    if (!roomCode) {
+      return;
+    }
+    const sanitizedCode = String(roomCode).trim();
+    socket.join(sanitizedCode);
+    roomManager.addClient(sanitizedCode, socket.id);
 
-io.on('connection', (socket) => {
-    console.log('Un utilisateur est connecté');
+    const currentVitals = roomManager.getOrCreateRoom(sanitizedCode);
+    // Send current vitals to the newly connected socket
+    socket.emit('updateParams', currentVitals);
+  });
 
-    socket.on('joinRoom', (roomCode) => {
-        socket.join(roomCode);
-        socket.roomCode = roomCode;
+  socket.on('sendData', rawData => {
+    const roomCode = roomManager.getRoomBySocketId(socket.id);
+    if (roomCode && rawData) {
+      const sanitizedVitals = roomManager.updateRoomData(roomCode, rawData);
+      // Broadcast updated vitals to all clients in the room
+      io.to(roomCode).emit('updateParams', sanitizedVitals);
+    }
+  });
 
-        // Valeurs par défaut pour une nouvelle salle
-        if (!roomsData[roomCode]) {
-            roomsData[roomCode] = {
-                bpm: 80,
-                spo2: 98,
-                sys: 120,
-                dia: 80
-            };
-        }
-
-        // Dès qu'on se connecte à la salle, on envoie les valeurs actuelles
-        socket.emit('updateParams', roomsData[roomCode]);
-        console.log(`Utilisateur a rejoint la salle : ${roomCode}`);
-    });
-
-    // Quand le pilote envoie de nouvelles données
-    socket.on('sendData', (data) => {
-        if (socket.roomCode) {
-            console.log(`Données reçues du pilote (${socket.roomCode}) :`, data);
-            roomsData[socket.roomCode] = data;
-            
-            // On diffuse la nouvelle consigne à tout le monde dans la salle
-            io.to(socket.roomCode).emit('updateParams', data);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Un utilisateur est déconnecté');
-    });
+  socket.on('disconnect', () => {
+    roomManager.removeClient(socket.id);
+  });
 });
 
-http.listen(port, () => {
-    console.log(`Serveur lancé sur le port ${port}`);
+httpServer.listen(PORT, () => {
+  console.log(`[Aeros Server] Running at http://localhost:${PORT}`);
 });
+
+// Graceful shutdown handling
+function handleShutdown(signal) {
+  console.log(`[Aeros Server] Received ${signal}. Closing server gracefully...`);
+  clearInterval(cleanupTimer);
+  httpServer.close(() => {
+    console.log('[Aeros Server] HTTP and Socket server closed.');
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', () => handleShutdown('SIGINT'));
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+
+export { app, httpServer, io, roomManager };

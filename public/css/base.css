@@ -1,0 +1,150 @@
+/* ==========================================================================
+   AEROS - BASE STYLESHEET & DESIGN TOKENS
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Surface & Background Colors */
+  --bg-color: #030308;
+  --card-bg: rgba(10, 10, 18, 0.85);
+  --card-bg-solid: #0a0a12;
+  --border-dim: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(255, 255, 255, 0.12);
+
+  /* Primary Theme & Buttons */
+  --primary-btn: #3b82f6;
+
+  /* Medical Vital Sign Colors */
+  --color-hr: #00ff88;
+  --color-hr-glow: rgba(0, 255, 136, 0.4);
+  --color-spo2: #00d4ff;
+  --color-spo2-glow: rgba(0, 212, 255, 0.4);
+  --color-nibp: #ffffff;
+  --color-nibp-glow: rgba(255, 255, 255, 0.3);
+  --color-sys: #6366f1;
+  --color-sys-glow: rgba(99, 102, 241, 0.3);
+
+  /* Alert & Status Colors */
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+
+  /* Typography */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-digital: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+
+  /* Transitions & Effects */
+  --glass-blur: blur(20px);
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Box Sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: var(--bg-color);
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0, 255, 136, 0.03) 0%, transparent 70%);
+  font-family: var(--font-ui);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Brand Logo */
+.brand-logo {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #ffffff, #888888);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Code Badge */
+.room-badge {
+  margin-left: 10px;
+  font-size: 0.8em;
+  color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.room-badge--cyan {
+  color: var(--color-spo2);
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* Shared Alert Animations */
+@keyframes blinkRed {
+  0%,
+  100% {
+    background-color: rgba(239, 68, 68, 0.85);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.9);
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ffffff;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+  }
+}
+
+.alert-active {
+  animation: blinkRed 1s infinite !important;
+  border-radius: 6px;
+  padding: 0 6px;
+  opacity: 1 !important;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.is-shaking {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* Screen reader accessible text utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

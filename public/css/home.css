@@ -1,0 +1,160 @@
+/* ==========================================================================
+   AEROS - HOME PORTAL STYLESHEET
+   ========================================================================== */
+
+body.accueil {
+  background: radial-gradient(circle at center, #1a1a24 0%, #030308 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.home-logo {
+  font-size: 5rem;
+  margin-bottom: 0;
+}
+
+.home-subtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  margin-top: -10px;
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+.room-input-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.room-input-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.room-input-field {
+  padding: 12px 20px;
+  font-size: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  text-align: center;
+  width: 200px;
+  outline: none;
+  font-weight: bold;
+  letter-spacing: 2px;
+  font-family: var(--font-digital);
+  transition: var(--transition-smooth);
+}
+
+.room-input-field:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.room-input-field.input-error {
+  border-color: var(--color-danger);
+}
+
+.room-input-hint {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin-top: 15px;
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.4;
+}
+
+.menu-container {
+  display: flex;
+  gap: 20px;
+}
+
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 100px;
+  background: rgba(18, 18, 28, 0.85);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+  backdrop-filter: var(--glass-blur);
+}
+
+.menu-btn:hover {
+  background: rgba(30, 30, 48, 0.95);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.btn-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.btn-text {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.footer-info {
+  text-align: center;
+  margin-top: 45px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.footer-info p {
+  margin: 5px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-logo {
+    font-size: 3rem;
+  }
+
+  .home-subtitle {
+    font-size: 1rem;
+    margin-bottom: 30px;
+    padding: 0 10px;
+  }
+
+  .room-input-field {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .menu-container {
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .menu-btn {
+    width: 100%;
+    max-width: 250px;
+    height: 80px;
+  }
+
+  .footer-info {
+    margin-top: 50px;
+  }
+}
