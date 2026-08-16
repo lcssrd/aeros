@@ -104,8 +104,8 @@ export function evaluateAlerts({ vitals, isSpo2Active = false, fromNibp = false 
   const sys = Number(vitals.sys);
   const dia = Number(vitals.dia);
 
-  // Heart Rate (BPM) alarm
-  if (isSpo2Active && !isNaN(bpm)) {
+  // Heart Rate (BPM) alarm (evaluated during SpO2 monitoring OR post-NIBP measurement)
+  if ((isSpo2Active || fromNibp) && !isNaN(bpm)) {
     if (bpm < MEDICAL_THRESHOLDS.BPM.MIN_SAFE || bpm > MEDICAL_THRESHOLDS.BPM.MAX_SAFE) {
       alerts.bpm = true;
       triggerAlert = true;

@@ -140,6 +140,35 @@ describe('Vitals Service', () => {
       expect(measurementResult.alerts.sys).toBe(true);
       expect(measurementResult.alerts.dia).toBe(true);
     });
+
+    it('triggers Heart Rate alarm during NIBP measurement even if SpO2 sensor is inactive', () => {
+      // Tachycardia post-NIBP without SpO2 probe attached
+      const postNibpTachy = evaluateAlerts({
+        vitals: { bpm: 115, spo2: '--', sys: 120, dia: 80 },
+        isSpo2Active: false,
+        fromNibp: true,
+      });
+      expect(postNibpTachy.triggerAlert).toBe(true);
+      expect(postNibpTachy.alerts.bpm).toBe(true);
+
+      // Bradycardia post-NIBP without SpO2 probe attached
+      const postNibpBrady = evaluateAlerts({
+        vitals: { bpm: 42, spo2: '--', sys: 120, dia: 80 },
+        isSpo2Active: false,
+        fromNibp: true,
+      });
+      expect(postNibpBrady.triggerAlert).toBe(true);
+      expect(postNibpBrady.alerts.bpm).toBe(true);
+
+      // When fromNibp is false and SpO2 is inactive -> no alert
+      const idle = evaluateAlerts({
+        vitals: { bpm: 115, spo2: '--', sys: 120, dia: 80 },
+        isSpo2Active: false,
+        fromNibp: false,
+      });
+      expect(idle.triggerAlert).toBe(false);
+      expect(idle.alerts.bpm).toBe(false);
+    });
   });
 
   describe('applyBpmJitter', () => {

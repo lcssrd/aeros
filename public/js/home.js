@@ -5,6 +5,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const roomInput = document.getElementById('room-code');
   const btnMonitor = document.getElementById('btn-join-monitor');
+  const btnDinamap = document.getElementById('btn-join-dinamap');
   const btnPilote = document.getElementById('btn-join-pilote');
 
   if (roomInput && !roomInput.value) {
@@ -33,6 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMonitor.addEventListener('click', e => {
       e.preventDefault();
       join('monitor.html');
+    });
+  }
+
+  if (btnDinamap) {
+    btnDinamap.addEventListener('click', e => {
+      e.preventDefault();
+      join('dinamap.html');
     });
   }
 

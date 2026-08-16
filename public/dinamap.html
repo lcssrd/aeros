@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AEROS A100 - Moniteur Dinamap</title>
+  <meta
+    name="description"
+    content="Interface de simulation de moniteur médical AEROS A100 DINAMAP."
+  />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/monitor.css" />
+  <style>
+    :root {
+      --case-blue-top: #1b7be9;
+      --case-blue-mid: #0b60c7;
+      --case-blue-deep: #03489e;
+      --case-blue-shadow: #02295a;
+      
+      --led-red-lit: #ff1e2d;
+      --led-red-glow: rgba(255, 30, 45, 0.75);
+      --led-red-ghost: #1e0507;
+
+      --led-amber-lit: #ffa200;
+      --led-amber-glow: rgba(255, 162, 0, 0.75);
+      --led-amber-ghost: #221400;
+
+      --led-green-lit: #2cf54e;
+      --led-green-glow: rgba(44, 245, 78, 0.75);
+      --led-green-ghost: #031908;
+
+      --btn-gray-light: #f2f5f8;
+      --btn-gray-mid: #cdd3da;
+      --btn-gray-dark: #8c939e;
+      --btn-yellow-light: #fff266;
+      --btn-yellow-mid: #fecb00;
+      --btn-yellow-dark: #c99700;
+      --btn-green-light: #3ae57c;
+      --btn-green-mid: #0fa44c;
+      --btn-green-dark: #086e32;
+    }
+
+    body.dinamap-page {
+      min-height: 100vh;
+      width: 100vw;
+      background: radial-gradient(circle at 50% 35%, #184175 0%, #0d223f 55%, #050d1a 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    /* Top Bar matches standard Aeros Monitor */
+    .top-bar-dinamap {
+      width: 100%;
+      height: 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border-glow);
+      background: linear-gradient(180deg, rgba(15, 15, 25, 0.95) 0%, rgba(8, 8, 15, 0.98) 100%);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+    }
+
+    /* ==========================================================================
+       A100 MONITOR HARDWARE CHASSIS
+       ========================================================================== */
+    .v100-chassis {
+      position: relative;
+      width: 580px;
+      height: 600px;
+      background: linear-gradient(180deg, var(--case-blue-top) 0%, var(--case-blue-mid) 28%, var(--case-blue-deep) 78%, var(--case-blue-shadow) 100%);
+      border-radius: 48px 48px 30px 30px;
+      box-shadow: 
+        inset 0 4px 6px rgba(255, 255, 255, 0.6),
+        inset 0 -8px 16px rgba(0, 0, 0, 0.6),
+        inset 12px 0 18px rgba(255, 255, 255, 0.15),
+        inset -12px 0 18px rgba(0, 0, 0, 0.35),
+        0 28px 70px rgba(0, 0, 0, 0.75),
+        0 8px 24px rgba(0, 0, 0, 0.5);
+      display: grid;
+      grid-template-columns: 115px 1fr 115px;
+      grid-template-rows: 1fr 94px;
+      padding: 16px 16px 8px 16px;
+      overflow: visible;
+      margin-top: 32px;
+      margin-bottom: 30px;
+    }
+
+    /* Top Curvature Highlight */
+    .v100-chassis::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0));
+      border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+      pointer-events: none;
+    }
+
+    /* SIDE BUTTON PANELS (SYMMETRICAL) */
+    .side-wing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 18px;
+      padding: 12px 6px 0 6px;
+      z-index: 2;
+      width: 100%;
+    }
+
+    .side-wing.left {
+      padding-right: 8px;
+      padding-left: 4px;
+    }
+
+    .side-wing.right {
+      padding-left: 8px;
+      padding-right: 4px;
+    }
+
+    .btn-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .btn-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+      text-align: center;
+      letter-spacing: -0.1px;
+    }
+
+    /* Silence Button (Yellow Pill) */
+    .btn-silence {
+      width: 66px;
+      height: 35px;
+      background: linear-gradient(180deg, var(--btn-yellow-light) 0%, var(--btn-yellow-mid) 45%, var(--btn-yellow-dark) 100%);
+      border: 1.5px solid #a67c00;
+      border-radius: 18px;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.9),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-silence svg {
+      width: 18px;
+      height: 18px;
+      fill: #1a1a1a;
+    }
+
+    .btn-silence:active, .btn-silence.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-silence.muted-state {
+      filter: brightness(0.85);
+      box-shadow: 0 0 10px rgba(254, 203, 0, 0.85);
+    }
+
+    /* Inflate / Stop Button (Green Pill) */
+    .btn-inflate {
+      width: 66px;
+      height: 35px;
+      background: linear-gradient(180deg, var(--btn-green-light) 0%, var(--btn-green-mid) 45%, var(--btn-green-dark) 100%);
+      border: 1.5px solid #055024;
+      border-radius: 18px;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-inflate svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+
+    .btn-inflate:active, .btn-inflate.active, .btn-inflate.measuring {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-inflate.measuring {
+      box-shadow: 0 0 12px rgba(58, 229, 124, 0.95);
+    }
+
+    /* Round Gray Buttons (Menu, Cycle) */
+    .btn-round-gray {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(145deg, var(--btn-gray-light) 0%, var(--btn-gray-mid) 45%, var(--btn-gray-dark) 100%);
+      border: 1.5px solid #727882;
+      border-radius: 50%;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.95),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.4),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-round-gray svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .btn-round-gray:active, .btn-round-gray.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-round-gray.active-mode {
+      background: linear-gradient(145deg, #4ade80 0%, #16a34a 45%, #15803d 100%) !important;
+      border-color: #86efac !important;
+      box-shadow: 0 0 14px rgba(74, 222, 128, 0.95), inset 0 2px 3px rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .btn-round-gray.active-mode svg {
+      stroke: #ffffff !important;
+      animation: spinCycle 4s linear infinite;
+    }
+
+    @keyframes spinCycle {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Red Stop All Button */
+    .btn-round-red {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(145deg, #f87171 0%, #dc2626 45%, #991b1b 100%);
+      border: 1.5px solid #7f1d1d;
+      border-radius: 50%;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.85),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.4),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-round-red svg {
+      width: 16px;
+      height: 16px;
+      fill: #ffffff;
+    }
+
+    .btn-round-red:active, .btn-round-red.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Blue SpO2 / Saturation Button */
+    .btn-round-blue {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(145deg, #38bdf8 0%, #0284c7 45%, #0369a1 100%);
+      border: 1.5px solid #075985;
+      border-radius: 50%;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.4),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-round-blue svg {
+      width: 20px;
+      height: 20px;
+      fill: #ffffff;
+    }
+
+    .btn-round-blue:active, .btn-round-blue.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-round-blue.active-spo2 {
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.95);
+      border-color: #ffffff;
+    }
+
+    /* Plus / Minus Rocker Button */
+    .btn-rocker-capsule {
+      width: 32px;
+      height: 60px;
+      background: linear-gradient(180deg, var(--btn-gray-light) 0%, var(--btn-gray-mid) 45%, var(--btn-gray-dark) 100%);
+      border: 1.5px solid #727882;
+      border-radius: 16px;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.4),
+        0 3px 7px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .btn-rocker-half {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #333;
+      font-weight: 800;
+      font-size: 16px;
+      transition: background 0.1s;
+    }
+
+    .btn-rocker-half:first-child {
+      border-bottom: 1px solid #8e959e;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-rocker-half:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-rocker-half:active {
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Blue On/Off Button */
+    .btn-onoff {
+      width: 56px;
+      height: 30px;
+      background: linear-gradient(180deg, #1472e3 0%, #0954b4 45%, #033475 100%);
+      border: 1.5px solid #022047;
+      border-radius: 15px;
+      box-shadow: 
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.4),
+        inset 0 -2px 3px rgba(0, 0, 0, 0.6),
+        0 3px 6px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+
+    .btn-onoff svg {
+      width: 15px;
+      height: 15px;
+      fill: rgba(255, 255, 255, 0.85);
+    }
+
+    .btn-onoff:active, .btn-onoff.active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ==========================================================================
+       CENTER SCREEN (SMOKED GLASS WITH 7-SEGMENT LEDS)
+       ========================================================================== */
+    .screen-bezel {
+      background: #020304;
+      border-radius: 20px;
+      padding: 3px;
+      box-shadow: 
+        inset 0 4px 12px rgba(0, 0, 0, 0.98),
+        0 1px 0 rgba(255, 255, 255, 0.28),
+        0 -1px 0 rgba(0, 0, 0, 0.6);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen-panel {
+      background: radial-gradient(circle at 45% 25%, #0a0e14 0%, #030406 100%);
+      border-radius: 17px;
+      height: 100%;
+      position: relative;
+      padding: 12px 14px 10px 14px;
+      overflow: hidden;
+      box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Diagonal Glass Sheen Reflection */
+    .screen-panel::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 220%;
+      height: 220%;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.07) 0%,
+        rgba(255, 255, 255, 0.03) 38%,
+        rgba(255, 255, 255, 0) 42%,
+        rgba(255, 255, 255, 0.015) 60%,
+        rgba(255, 255, 255, 0.06) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Screen Elements Layout */
+    .screen-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto auto;
+      row-gap: 8px;
+      column-gap: 10px;
+      height: 100%;
+    }
+
+    .metric-box {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: opacity 0.2s ease;
+    }
+
+    .metric-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.1px;
+      margin-bottom: 2px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .metric-unit {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    }
+
+    /* 7-Segment SVG Container */
+    .digit-cluster {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 4px;
+      border-radius: 4px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85);
+      transition: all 0.2s ease;
+    }
+
+    .seg-digit-svg {
+      display: inline-block;
+      width: 32px;
+      height: 54px;
+      flex-shrink: 0;
+    }
+
+    .seg-digit-svg.small {
+      width: 18px;
+      height: 30px;
+    }
+
+    .seg-digit-svg.medium {
+      width: 24px;
+      height: 40px;
+    }
+
+    .seg-digit-svg.large {
+      width: 34px;
+      height: 58px;
+    }
+
+    /* LED Glow Colors */
+    .led-red .seg-off {
+      fill: var(--led-red-ghost);
+      opacity: 0.9;
+    }
+
+    .led-red .seg-on {
+      fill: var(--led-red-lit);
+      filter: drop-shadow(0 0 5px var(--led-red-lit)) drop-shadow(0 0 12px var(--led-red-glow));
+    }
+
+    .led-amber .seg-off {
+      fill: var(--led-amber-ghost);
+      opacity: 0.9;
+    }
+
+    .led-amber .seg-on {
+      fill: var(--led-amber-lit);
+      filter: drop-shadow(0 0 5px var(--led-amber-lit)) drop-shadow(0 0 12px var(--led-amber-glow));
+    }
+
+    .led-green .seg-off {
+      fill: var(--led-green-ghost);
+      opacity: 0.9;
+    }
+
+    .led-green .seg-on {
+      fill: var(--led-green-lit);
+      filter: drop-shadow(0 0 5px var(--led-green-glow));
+    }
+
+    /* Flashing Alert Animation */
+    @keyframes ledAlertBlink {
+      0%, 100% { filter: brightness(1) drop-shadow(0 0 8px #ff0015); }
+      50% { filter: brightness(0.25); }
+    }
+
+    .alert-active .seg-on {
+      animation: ledAlertBlink 0.8s infinite ease-in-out;
+    }
+
+    /* Metric Position Styling */
+    .box-systolic {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+
+    .box-map {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      padding-left: 8px;
+    }
+
+    .box-diastolic {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+    }
+
+    .box-history {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      padding-left: 8px;
+      margin-top: 4px;
+    }
+
+    .history-text {
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: 0.8px;
+      color: var(--led-green-lit);
+      text-shadow: 0 0 8px var(--led-green-glow);
+      margin-top: 4px;
+    }
+
+    .box-pulse {
+      grid-column: 1 / 3;
+      grid-row: 3 / 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -2px;
+    }
+
+    /* Battery status */
+    .battery-pill {
+      position: absolute;
+      right: 12px;
+      bottom: 110px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: var(--led-green-lit);
+      text-shadow: 0 0 6px var(--led-green-glow);
+    }
+
+    .battery-box {
+      width: 14px;
+      height: 9px;
+      border: 1.5px solid var(--led-green-lit);
+      border-radius: 2px;
+      position: relative;
+      box-shadow: 0 0 5px var(--led-green-glow);
+      display: flex;
+      align-items: center;
+      padding: 1px;
+    }
+
+    .battery-box::after {
+      content: '';
+      position: absolute;
+      right: -3px;
+      top: 1.5px;
+      bottom: 1.5px;
+      width: 2px;
+      background: var(--led-green-lit);
+      border-radius: 0 1px 1px 0;
+    }
+
+    .battery-level {
+      width: 100%;
+      height: 100%;
+      background: var(--led-green-lit);
+      border-radius: 1px;
+    }
+
+    .box-spo2 {
+      grid-column: 1 / 2;
+      grid-row: 4 / 5;
+      margin-top: 10px;
+    }
+
+    /* Vertical Pulse Bargraph (Plethysmograph) */
+    .pulse-bargraph {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 15px;
+      height: 46px;
+      background: #020603;
+      border: 1.5px solid #082410;
+      border-radius: 2px;
+      padding: 2px;
+      margin-left: 10px;
+      box-shadow: 
+        inset 0 1px 4px rgba(0, 0, 0, 0.95),
+        0 1px 2px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .pulse-bar-seg {
+      width: 100%;
+      height: 3.5px;
+      background: #041a08;
+      border-radius: 0.5px;
+      transition: background 0.05s ease-out, box-shadow 0.05s ease-out;
+    }
+
+    .pulse-bar-seg.lit {
+      background: #2cf54e;
+      box-shadow: 0 0 5px #2cf54e, 0 0 10px rgba(44, 245, 78, 0.85);
+    }
+
+    /* ==========================================================================
+       BOTTOM CHASSIS: BRANDING & CONNECTORS
+       ========================================================================== */
+    .chassis-bottom {
+      grid-column: 1 / 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6px;
+      position: relative;
+      z-index: 3;
+    }
+
+    /* AEROS Brand Block */
+    .aeros-brand-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: white;
+    }
+
+    .aeros-logo-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 6px;
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .aeros-sub-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #bae6fd;
+      opacity: 0.9;
+    }
+
+    /* Connectors (SpO2 & NIBP) */
+    .probe-ports {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    /* SpO2 Probe (Left) */
+    .spo2-port-block {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .spo2-port-block:hover {
+      transform: translateY(-2px);
+    }
+
+    .spo2-plug-head {
+      width: 46px;
+      height: 34px;
+      background: linear-gradient(180deg, #d3d7dc 0%, #9fa5ad 100%);
+      border-radius: 6px 6px 4px 4px;
+      border: 1px solid #777d85;
+      box-shadow: 
+        inset 0 1px 2px rgba(255, 255, 255, 0.7),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 2px;
+      position: relative;
+    }
+
+    .spo2-boot-ribs {
+      width: 20px;
+      height: 11px;
+      background: repeating-linear-gradient(
+        180deg,
+        #848a93 0px,
+        #848a93 2px,
+        #b4bac2 2px,
+        #b4bac2 4px
+      );
+      border-radius: 2px;
+      margin-bottom: -5px;
+      z-index: 4;
+      border: 1px solid #71777e;
+    }
+
+    .spo2-lead-wire {
+      width: 7px;
+      height: 52px;
+      background: linear-gradient(90deg, #9ea4ac 0%, #c4cbd3 50%, #868d95 100%);
+      border-radius: 4px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .spo2-green-clip {
+      position: absolute;
+      left: -13px;
+      bottom: 8px;
+      width: 13px;
+      height: 17px;
+      background: #00aa4f;
+      border-radius: 2px;
+      border: 1px solid #006830;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* NIBP Cuff Quick Connect (Center) */
+    .nibp-port-block {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .nibp-port-block:hover {
+      transform: translateY(-2px);
+    }
+
+    .nibp-collar-fitting {
+      width: 42px;
+      height: 36px;
+      background: linear-gradient(180deg, #d8dce1 0%, #a4aab3 100%);
+      border-radius: 8px 8px 4px 4px;
+      border: 1px solid #7a8088;
+      box-shadow: 
+        inset 0 2px 3px rgba(255, 255, 255, 0.8),
+        0 4px 10px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .nibp-quick-latch {
+      width: 18px;
+      height: 9px;
+      background: #bdc2c8;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid #777d85;
+      margin-top: -5px;
+    }
+
+    .nibp-rubber-hose {
+      width: 15px;
+      height: 56px;
+      background: linear-gradient(90deg, #858b93 0%, #b8bec7 40%, #727880 100%);
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+
+    /* A100 Model Branding */
+    .dinamap-brand-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .v100-heading {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #e6f2ff;
+      line-height: 1;
+    }
+
+    /* Pullout Tabs at bottom */
+    .reference-tabs {
+      position: absolute;
+      bottom: -10px;
+      left: 90px;
+      right: 90px;
+      height: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      z-index: 1;
+    }
+
+    .ref-tab {
+      height: 12px;
+      padding: 1px 10px;
+      font-size: 6.5px;
+      font-weight: 700;
+      color: #111;
+      border-radius: 0 0 3px 3px;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-top: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+
+    .tab-cyan { background: #38bdf8; }
+    .tab-green { background: #4ade80; }
+    .tab-yellow { background: #facc15; }
+
+    /* Power Off State */
+    .v100-chassis.power-off .seg-on {
+      fill: var(--led-red-ghost) !important;
+      filter: none !important;
+    }
+    .v100-chassis.power-off .led-amber .seg-on {
+      fill: var(--led-amber-ghost) !important;
+      filter: none !important;
+    }
+    .v100-chassis.power-off .history-text,
+    .v100-chassis.power-off .battery-pill {
+      opacity: 0.08;
+      filter: none;
+    }
+
+    /* Cuff pump animation */
+    @keyframes cuffPumpPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .pumping .nibp-rubber-hose {
+      animation: cuffPumpPulse 0.8s infinite ease-in-out;
+    }
+
+    /* Responsive scaling */
+    @media (max-width: 600px) {
+      .v100-chassis {
+        transform: scale(0.85);
+        transform-origin: top center;
+        margin-bottom: -60px;
+      }
+    }
+  </style>
+</head>
+<body class="dinamap-page">
+  <audio id="audio-cuff" src="/ta.mp3" preload="auto"></audio>
+  <audio id="alert-player" src="/alert.mp3" preload="auto"></audio>
+
+  <!-- Aeros Top Navigation Header -->
+  <header class="top-bar-dinamap">
+    <div class="monitor-logo brand-logo">AEROS</div>
+    <div class="patient-info">
+      ADULTE - STANDARD
+      <span class="room-badge room-badge--cyan">CODE: <span id="display-room">--</span></span>
+    </div>
+    <div class="top-right">
+      <time id="clock" aria-label="Heure actuelle">--:--</time>
+      <a
+        id="btn-switch-monitor"
+        class="fs-btn"
+        href="monitor.html"
+        aria-label="Mode Moniteur"
+        title="Passer en mode Moniteur Multiparamétrique"
+        style="text-decoration: none; font-size: 0.95rem; font-weight: bold; width: auto; padding: 0 10px;"
+      >
+        📺 Moniteur
+      </a>
+      <button
+        type="button"
+        id="btn-mute-top"
+        class="fs-btn"
+        aria-label="Couper le son"
+        title="Couper le son"
+      >
+        🔊
+      </button>
+      <button
+        type="button"
+        id="btn-fs"
+        class="fs-btn"
+        aria-label="Mode plein écran"
+        title="Plein écran"
+      >
+        ⛶
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN A100 MONITOR HARDWARE CHASSIS -->
+  <main class="v100-chassis" id="v100-chassis" aria-label="Moniteur Médical AEROS A100">
+
+    <!-- LEFT SIDE BUTTON PANEL -->
+    <section class="side-wing left" aria-label="Boutons Gauche">
+      <!-- Silence -->
+      <div class="btn-cell">
+        <span class="btn-text">Silence</span>
+        <button class="btn-silence" id="btn-silence" title="Couper le son / Alarme" aria-label="Silence">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            <line x1="3" y1="3" x2="21" y2="21" stroke="#1a1a1a" stroke-width="2.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Stop All (Red) -->
+      <div class="btn-cell">
+        <span class="btn-text">Stop All</span>
+        <button class="btn-round-red" id="btn-stop-hw" title="Arrêter tout (Tension, SpO2, Alarmes)" aria-label="Stop All">
+          <svg viewBox="0 0 24 24">
+            <rect x="5" y="5" width="14" height="14" rx="2" fill="#fff" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- +/- Rocker -->
+      <div class="btn-cell">
+        <div class="btn-rocker-capsule">
+          <div class="btn-rocker-half" id="btn-plus" title="Augmenter" role="button" tabindex="0">+</div>
+          <div class="btn-rocker-half" id="btn-minus" title="Diminuer" role="button" tabindex="0">−</div>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <div class="btn-cell">
+        <span class="btn-text">Menu</span>
+        <button class="btn-round-gray" id="btn-menu" title="Menu" aria-label="Menu">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#333">
+            <rect y="4" width="24" height="3" rx="1.5"/>
+            <rect y="10.5" width="24" height="3" rx="1.5"/>
+            <rect y="17" width="24" height="3" rx="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- CENTER DISPLAY SCREEN -->
+    <section class="screen-bezel" aria-label="Écran d'affichage LED">
+      <div class="screen-panel">
+        <div class="screen-grid">
+
+          <!-- Systolic (Top Left) -->
+          <div class="metric-box box-systolic" id="box-sys">
+            <span class="metric-title">Systolic</span>
+            <div class="metric-row">
+              <div class="digit-cluster led-red" id="cluster-sys"></div>
+              <span class="metric-unit">mmHg</span>
+            </div>
+          </div>
+
+          <!-- MAP / Cuff (Top Right) -->
+          <div class="metric-box box-map" id="box-map">
+            <span class="metric-title">MAP/Cuff</span>
+            <div class="metric-row">
+              <div class="digit-cluster led-red" id="cluster-map"></div>
+              <span class="metric-unit">mmHg</span>
+            </div>
+          </div>
+
+          <!-- Diastolic (Middle Left) -->
+          <div class="metric-box box-diastolic" id="box-dia">
+            <span class="metric-title">Diastolic</span>
+            <div class="metric-row">
+              <div class="digit-cluster led-red" id="cluster-dia"></div>
+              <span class="metric-unit">mmHg</span>
+            </div>
+          </div>
+
+          <!-- History / Elapsed Min (Middle Right) -->
+          <div class="metric-box box-history" id="box-hist">
+            <div class="metric-row">
+              <div class="digit-cluster led-red" id="cluster-hist"></div>
+              <span class="metric-unit">min</span>
+            </div>
+            <div class="history-text" id="label-history">HISTORY</div>
+          </div>
+
+          <!-- Pulse Rate (Center) -->
+          <div class="metric-box box-pulse" id="box-pulse">
+            <span class="metric-title">Pulse Rate</span>
+            <div class="metric-row">
+              <div class="digit-cluster led-amber" id="cluster-pulse"></div>
+              <span class="metric-unit">bpm</span>
+            </div>
+          </div>
+
+          <!-- SpO2 (Bottom Left) -->
+          <div class="metric-box box-spo2" id="box-spo2">
+            <span class="metric-title">SpO2</span>
+            <div class="metric-row">
+              <div class="digit-cluster led-red" id="cluster-spo2"></div>
+              <span class="metric-unit">%</span>
+              <div class="pulse-bargraph" id="pulse-bargraph" aria-label="Indicateur de pulsation" title="Indicateur de pulsation">
+                <div class="pulse-bar-seg" data-level="8"></div>
+                <div class="pulse-bar-seg" data-level="7"></div>
+                <div class="pulse-bar-seg" data-level="6"></div>
+                <div class="pulse-bar-seg" data-level="5"></div>
+                <div class="pulse-bar-seg" data-level="4"></div>
+                <div class="pulse-bar-seg" data-level="3"></div>
+                <div class="pulse-bar-seg" data-level="2"></div>
+                <div class="pulse-bar-seg" data-level="1"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Battery OK Indicator -->
+        <div class="battery-pill" id="battery-indicator" aria-label="État de la batterie: OK">
+          <div class="battery-box">
+            <div class="battery-level"></div>
+          </div>
+          <span>BATTERY OK</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT SIDE BUTTON PANEL -->
+    <section class="side-wing right" aria-label="Boutons Droite">
+      <!-- Inflate/Stop -->
+      <div class="btn-cell">
+        <span class="btn-text">Inflate/Stop</span>
+        <button class="btn-inflate" id="btn-inflate" title="Gonfler / Arrêter la tension" aria-label="Gonfler ou Arrêter la prise de tension">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" fill="none" stroke="#fff" stroke-width="2.5"/>
+            <path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Cycle / Tension Auto -->
+      <div class="btn-cell">
+        <span class="btn-text">Cycle</span>
+        <button class="btn-round-gray" id="btn-cycle" title="Tension Auto (Cycles automatiques de 2 min)" aria-label="Tension Auto / Cycle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" stroke-linecap="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- SpO2 Saturation (Blue) -->
+      <div class="btn-cell">
+        <span class="btn-text">SpO2</span>
+        <button class="btn-round-blue" id="btn-spo2-hw" title="Prise de Saturation SpO2" aria-label="Prise de Saturation SpO2">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- On/Off -->
+      <div class="btn-cell">
+        <span class="btn-text">On/Off</span>
+        <button class="btn-onoff" id="btn-onoff" title="Marche / Arrêt" aria-label="Marche / Arrêt">
+          <svg viewBox="0 0 24 24">
+            <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- BOTTOM CHASSIS & ACCESSORY PORTS -->
+    <footer class="chassis-bottom">
+      <!-- AEROS Brand Block -->
+      <div class="aeros-brand-block">
+        <div class="aeros-logo-badge">AEROS</div>
+        <div class="aeros-sub-label">VITAL SIMULATOR</div>
+      </div>
+
+      <!-- Cable Connectors -->
+      <div class="probe-ports">
+        <!-- SpO2 Probe (Left) -->
+        <div class="spo2-port-block" id="port-spo2" title="Connecter / Déconnecter la sonde SpO2">
+          <div class="spo2-plug-head">
+            <div class="spo2-boot-ribs"></div>
+          </div>
+          <div class="spo2-lead-wire">
+            <div class="spo2-green-clip"></div>
+          </div>
+        </div>
+
+        <!-- NIBP Hose (Center) -->
+        <div class="nibp-port-block" id="port-nibp" title="Lancer une mesure de tension">
+          <div class="nibp-collar-fitting">
+            <div class="nibp-quick-latch"></div>
+          </div>
+          <div class="nibp-rubber-hose"></div>
+        </div>
+      </div>
+
+      <!-- A100 Model Branding -->
+      <div class="dinamap-brand-block">
+        <div class="v100-heading">A100</div>
+      </div>
+
+      <!-- Pullout Reference Cards -->
+      <div class="reference-tabs">
+        <div class="ref-tab tab-cyan">Quick Ref</div>
+        <div class="ref-tab tab-green">Guide</div>
+        <div class="ref-tab tab-yellow">Alarm Codes</div>
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="js/dinamap.js"></script>
+</body>
+</html>

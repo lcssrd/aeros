@@ -15,10 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Display room code
+  // Display room code & update switcher link
   const displayRoomEl = document.getElementById('display-room');
   if (displayRoomEl) {
     displayRoomEl.textContent = roomCode;
+  }
+  const btnSwitchDinamap = document.getElementById('btn-switch-dinamap');
+  if (btnSwitchDinamap) {
+    btnSwitchDinamap.href = `dinamap.html?room=${encodeURIComponent(roomCode)}`;
   }
 
   // Audio Manager Setup
