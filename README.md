@@ -9,15 +9,15 @@
 
 ## ✨ Fonctionnalités
 
-- 🎛️ **Panneau Instructeur (Pilote)** : Contrôle en direct de la Fréquence Cardiaque (FC), de la Saturation pulsée en oxygène (SpO2) et de la Pression Artérielle (Systolique / Diastolique).
-- 📺 **Moniteur Patient Réaliste** :
-  - Valeurs floues au démarrage comme sur un vrai moniteur éteint / non connecté.
-  - **SpO2 + Pouls** : Bip sonore synchronisé avec le rythme cardiaque via la **Web Audio API**, courbe pléthysmographique animée réaliste avec onde dicrote, et variation physiologique subtile du pouls ($\pm 1$ bpm).
-  - **Prise de Tension (PNI)** : Mesure manuelle (One-shot) ou automatique cyclique (toutes les 2 min) avec bruitage de brassard et calcul automatique de la **Pression Artérielle Moyenne (PAM)**.
-  - **Système d'Alarmes** : Clignotement rouge et alarme sonore en cas de bradychardie/tachycardie, désaturation (&lt; 95%) ou hypo/hypertension.
-  - **Mode Silencieux (Mute)** et **Mode Plein Écran (⛶)**.
-- ⚡ **Temps Réel & Multi-Salles** : Communication bidirectionnelle via WebSocket (Socket.IO) avec isolation par code de salle à 4 chiffres.
-- 🛡️ **Sécurité & Architecture Propre** : En-têtes HTTP durcis via Helmet, architecture sans style ni script en ligne (SoC), tests unitaires et intégration continue (CI).
+- 🎛️ **Panneau Instructeur (Pilote)** : Contrôle en direct de la Fréquence Cardiaque (FC / Pouls), de la Saturation pulsée en oxygène (SpO2) et de la Pression Artérielle (Systolique / Diastolique) avec synchronisation curseurs/champs numériques et retour visuel de transmission.
+- 📺 **Moniteur Patient Réaliste (AEROS A100)** :
+  - **Interface Matérielle & Rétro-LED** : Afficheurs 7 segments LED réalistes avec segments éteints « fantômes », châssis texturé et boutons physiques interactifs.
+  - **SpO2 & Pouls** : Bip sonore synchronisé avec le rythme cardiaque via la **Web Audio API**, **barres pulsatiles à LED** (bargraphe d'amplitude de signal pulsatile à 8 segments avec montée systolique et décroissance diastolique), capteur SpO2 enfichable et variation physiologique subtile du pouls ($\pm 1$ bpm).
+  - **Prise de Tension (PNI)** : Mesure manuelle (One-shot) ou automatique cyclique (toutes les 2 min) avec bruitage de brassard, affichage dynamique de la pression instantanée du brassard, calcul automatique de la **Pression Artérielle Moyenne (PAM)** et historique du temps écoulé depuis la dernière mesure.
+  - **Système d'Alarmes** : Clignotement rouge visuel des blocs LED et alarme sonore en cas de bradycardie/tachycardie, désaturation (&lt; 95%) ou hypo/hypertension.
+  - **Interactivité Complète** : Bouton Marche/Arrêt, Silence Alarme (Mute), Mode Plein Écran (⛶), horloge temps réel et branchement interactif des connecteurs (prise SpO2, raccord brassard PNI).
+- ⚡ **Temps Réel & Multi-Salles** : Communication bidirectionnelle ultra-rapide via WebSocket (Socket.IO) avec isolation par code de salle à 4 chiffres.
+- 🛡️ **Sécurité & Architecture Propre** : En-têtes HTTP durcis via Helmet, architecture sans style ni script en ligne (SoC), tests unitaires automatisés (Vitest) et intégration continue (CI GitHub Actions).
 
 ---
 
