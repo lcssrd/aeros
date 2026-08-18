@@ -9,18 +9,18 @@ import { calculateMAP, evaluateAlerts, applyBpmJitter } from '/src/services/vita
 
 // 7-Segment SVG Segment Definition
 const SEGMENTS_LOOKUP = {
-  '0': ['a', 'b', 'c', 'd', 'e', 'f'],
-  '1': ['b', 'c'],
-  '2': ['a', 'b', 'g', 'e', 'd'],
-  '3': ['a', 'b', 'g', 'c', 'd'],
-  '4': ['f', 'g', 'b', 'c'],
-  '5': ['a', 'f', 'g', 'c', 'd'],
-  '6': ['a', 'f', 'g', 'e', 'c', 'd'],
-  '7': ['a', 'b', 'c'],
-  '8': ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-  '9': ['a', 'b', 'c', 'd', 'f', 'g'],
+  0: ['a', 'b', 'c', 'd', 'e', 'f'],
+  1: ['b', 'c'],
+  2: ['a', 'b', 'g', 'e', 'd'],
+  3: ['a', 'b', 'g', 'c', 'd'],
+  4: ['f', 'g', 'b', 'c'],
+  5: ['a', 'f', 'g', 'c', 'd'],
+  6: ['a', 'f', 'g', 'e', 'c', 'd'],
+  7: ['a', 'b', 'c'],
+  8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+  9: ['a', 'b', 'c', 'd', 'f', 'g'],
   '-': ['g'],
-  ' ': [] // unlit digit with visible faint ghost segments
+  ' ': [], // unlit digit with visible faint ghost segments
 };
 
 function generateDigitSVG(char, size = 'large') {
@@ -50,9 +50,14 @@ function generateDigitSVG(char, size = 'large') {
 
 function renderCluster(elementId, valueStr, totalDigits = 3, size = 'large') {
   const el = document.getElementById(elementId);
-  if (!el) return;
+  if (!el) {
+    return;
+  }
 
-  const padded = (valueStr !== undefined && valueStr !== null ? valueStr.toString() : '').padStart(totalDigits, ' ');
+  const padded = (valueStr !== undefined && valueStr !== null ? valueStr.toString() : '').padStart(
+    totalDigits,
+    ' '
+  );
   let html = '';
   for (const ch of padded) {
     html += generateDigitSVG(ch, size);
@@ -150,11 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const isMuted = audioManager.toggleMute();
     if (isMuted) {
       els.btnMuteTop?.classList.add('muted');
-      if (els.btnMuteTop) els.btnMuteTop.textContent = '🔇';
+      if (els.btnMuteTop) {
+        els.btnMuteTop.textContent = '🔇';
+      }
       els.btnSilence?.classList.add('muted-state');
     } else {
       els.btnMuteTop?.classList.remove('muted');
-      if (els.btnMuteTop) els.btnMuteTop.textContent = '🔊';
+      if (els.btnMuteTop) {
+        els.btnMuteTop.textContent = '🔊';
+      }
       els.btnSilence?.classList.remove('muted-state');
     }
   }
@@ -177,7 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('updateParams', data => {
-      if (!data) return;
+      if (!data) {
+        return;
+      }
       serverBuffer = { ...data };
 
       // If SpO2 is currently active, update display in real time
@@ -192,9 +203,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Green LED Pulse Bargraph Animation (Plethysmograph Wave)
   function triggerPulseBeatVisual() {
-    if (!isSpo2Monitoring || !els.pulseBargraph) return;
+    if (!isSpo2Monitoring || !els.pulseBargraph) {
+      return;
+    }
     const segs = els.pulseBargraph.querySelectorAll('.pulse-bar-seg');
-    if (!segs || segs.length === 0) return;
+    if (!segs || segs.length === 0) {
+      return;
+    }
 
     const totalSegs = segs.length; // 8
     const peakLevel = 7 + (Math.random() > 0.4 ? 1 : 0);
@@ -211,37 +226,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Diastolic gradual decay
     setTimeout(() => {
-      if (!isSpo2Monitoring) return;
+      if (!isSpo2Monitoring) {
+        return;
+      }
       segs.forEach((seg, idx) => {
         const segLevel = totalSegs - idx;
-        if (segLevel > 5) seg.classList.remove('lit');
+        if (segLevel > 5) {
+          seg.classList.remove('lit');
+        }
       });
     }, 90);
 
     setTimeout(() => {
-      if (!isSpo2Monitoring) return;
+      if (!isSpo2Monitoring) {
+        return;
+      }
       segs.forEach((seg, idx) => {
         const segLevel = totalSegs - idx;
-        if (segLevel > 3) seg.classList.remove('lit');
+        if (segLevel > 3) {
+          seg.classList.remove('lit');
+        }
       });
     }, 180);
 
     setTimeout(() => {
-      if (!isSpo2Monitoring) return;
+      if (!isSpo2Monitoring) {
+        return;
+      }
       segs.forEach((seg, idx) => {
         const segLevel = totalSegs - idx;
-        if (segLevel > 1) seg.classList.remove('lit');
+        if (segLevel > 1) {
+          seg.classList.remove('lit');
+        }
       });
     }, 280);
 
     setTimeout(() => {
-      if (!isSpo2Monitoring) return;
+      if (!isSpo2Monitoring) {
+        return;
+      }
       segs.forEach(seg => seg.classList.remove('lit'));
     }, 380);
   }
 
   function clearPulseBargraph() {
-    if (!els.pulseBargraph) return;
+    if (!els.pulseBargraph) {
+      return;
+    }
     const segs = els.pulseBargraph.querySelectorAll('.pulse-bar-seg');
     segs.forEach(seg => seg.classList.remove('lit'));
   }
@@ -253,10 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
       beepInterval = null;
     }
 
-    if (!isSpo2Monitoring) return;
+    if (!isSpo2Monitoring) {
+      return;
+    }
 
     const currentBpm = parseInt(serverBuffer.bpm, 10);
-    if (!currentBpm || isNaN(currentBpm) || currentBpm <= 0) return;
+    if (!currentBpm || isNaN(currentBpm) || currentBpm <= 0) {
+      return;
+    }
 
     const intervalMs = Math.max(200, (60 / currentBpm) * 1000);
     audioManager.playPulseBeep();
@@ -370,14 +405,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (els.btnSpo2Hw) {
     els.btnSpo2Hw.addEventListener('click', () => {
       flashKey(els.btnSpo2Hw);
-      if (!isSpo2Monitoring) startSpo2();
-      else stopSpo2();
+      if (!isSpo2Monitoring) {
+        startSpo2();
+      } else {
+        stopSpo2();
+      }
     });
   }
   if (els.portSpo2) {
     els.portSpo2.addEventListener('click', () => {
-      if (!isSpo2Monitoring) startSpo2();
-      else stopSpo2();
+      if (!isSpo2Monitoring) {
+        startSpo2();
+      } else {
+        stopSpo2();
+      }
     });
   }
 
@@ -402,7 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startHistoryTimer() {
-    if (historyElapsedInterval) clearInterval(historyElapsedInterval);
+    if (historyElapsedInterval) {
+      clearInterval(historyElapsedInterval);
+    }
     historyElapsedInterval = setInterval(() => {
       if (isNibpMeasured) {
         elapsedMinutes++;
@@ -419,11 +462,16 @@ document.addEventListener('DOMContentLoaded', () => {
     els.btnInflate?.classList.add('measuring');
 
     // Dim previous reading during inflation
-    if (els.boxSys) els.boxSys.style.opacity = '0.4';
-    if (els.boxDia) els.boxDia.style.opacity = '0.4';
+    if (els.boxSys) {
+      els.boxSys.style.opacity = '0.4';
+    }
+    if (els.boxDia) {
+      els.boxDia.style.opacity = '0.4';
+    }
 
     let currentPressure = 0;
-    const targetPressure = parseInt(serverBuffer.sys, 10) > 0 ? parseInt(serverBuffer.sys, 10) + 35 : 175;
+    const targetPressure =
+      parseInt(serverBuffer.sys, 10) > 0 ? parseInt(serverBuffer.sys, 10) + 35 : 175;
 
     // Simulate realistic cuff inflation pressure rising on MAP/Cuff display
     cuffPressureTimer = setInterval(() => {
@@ -435,7 +483,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 150);
 
     setTimeout(() => {
-      if (cuffPressureTimer) clearInterval(cuffPressureTimer);
+      if (cuffPressureTimer) {
+        clearInterval(cuffPressureTimer);
+      }
       isNibpAnalyzing = false;
       isNibpMeasured = true;
       els.chassis?.classList.remove('pumping');
@@ -444,8 +494,12 @@ document.addEventListener('DOMContentLoaded', () => {
       audioManager.playNibpBeep();
       updateDisplayTensionOnly();
 
-      if (els.boxSys) els.boxSys.style.opacity = '1';
-      if (els.boxDia) els.boxDia.style.opacity = '1';
+      if (els.boxSys) {
+        els.boxSys.style.opacity = '1';
+      }
+      if (els.boxDia) {
+        els.boxDia.style.opacity = '1';
+      }
 
       // Evaluate blood pressure alerts
       checkAlerts(true);
@@ -455,7 +509,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Continuous Auto Cycle Countdown
   function startCycleCountdown(durationSeconds) {
     let timeLeft = durationSeconds;
-    if (countdownTimer) clearInterval(countdownTimer);
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+    }
 
     countdownTimer = setInterval(() => {
       timeLeft--;
@@ -529,7 +585,9 @@ document.addEventListener('DOMContentLoaded', () => {
       handleOneShotNIBP();
     });
   }
-  if (els.portNibp) els.portNibp.addEventListener('click', handleOneShotNIBP);
+  if (els.portNibp) {
+    els.portNibp.addEventListener('click', handleOneShotNIBP);
+  }
 
   if (els.btnCycle) {
     els.btnCycle.addEventListener('click', () => {
@@ -580,7 +638,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Additional Hardware Buttons Interactive Feedback
   function flashKey(btn) {
-    if (!btn) return;
+    if (!btn) {
+      return;
+    }
     btn.classList.add('active');
     setTimeout(() => btn.classList.remove('active'), 140);
   }
